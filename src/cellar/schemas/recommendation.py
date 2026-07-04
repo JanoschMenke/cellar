@@ -37,6 +37,8 @@ class ScoredDimension(BaseModel):
     label: str
     value: float
     strength: Strength
+    source: str = ""
+    source_url: str | None = None
 
 
 class PathwayPartner(BaseModel):

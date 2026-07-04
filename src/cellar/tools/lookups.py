@@ -40,6 +40,8 @@ class IsoformRiskTool(Tool):
             summary = isoforms.isoform_risk_summary(isoforms.protein_coding_isoforms(target_id))
         except Exception as error:
             return ToolResult(content=f"Isoform lookup failed: {error}", is_error=True)
+        if isinstance(summary, dict):
+            summary["reference"] = f"https://www.ensembl.org/Homo_sapiens/Gene/Summary?g={target_id}"
         return ToolResult(content=json.dumps(summary))
 
 

@@ -44,4 +44,6 @@ class ProteinAtlasProfileTool(Tool):
             )
         except Exception as error:
             return ToolResult(content=f"Human Protein Atlas lookup failed: {error}", is_error=True)
+        if isinstance(result, dict) and result.get("ensembl_id"):
+            result["reference"] = f"https://www.proteinatlas.org/{result['ensembl_id']}"
         return ToolResult(content=json.dumps(result))

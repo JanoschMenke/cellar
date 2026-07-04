@@ -11,7 +11,7 @@ from cellar.schemas.recommendation import (
     ScoredDimension,
     Strength,
 )
-from cellar.tools.recommend import DIM_LABELS, make_card, render_card_text
+from cellar.tools.recommend import DIM_LABELS, DIM_PHRASING, FACT_DIMS, make_card, render_card_text
 
 _TIER_LABELS: dict[ModelTier, str] = {
     ModelTier.TWO_D_LINE: "2D cell line",
@@ -30,6 +30,7 @@ _VERDICT_LABELS: dict[GateStatus, str] = {
 
 _STRONG_MIN = 0.7
 _MODERATE_MIN = 0.45
+_PRO_MIN = 0.6
 
 
 def _strength(value: float) -> Strength:
@@ -40,15 +41,65 @@ def _strength(value: float) -> Strength:
     return Strength.WEAK
 
 
-def _dimensions(scores: dict[str, object]) -> list[ScoredDimension]:
+def _dimension_source(
+    key: str,
+    *,
+    ensembl: str,
+    symbol: str,
+    pathway_pmids: list[str],
+    context_pmids: list[str],
+) -> tuple[str, str | None]:
+    name = DIM_PHRASING[key]["source"]
+    if key == "protein_present" and ensembl:
+        return name, f"https://www.proteinatlas.org/{ensembl}"
+    if key == "isoform_match" and ensembl:
+        return name, f"https://www.ensembl.org/Homo_sapiens/Gene/Summary?g={ensembl}"
+    if key == "pathway_coherence" and pathway_pmids:
+        return name, f"https://pubmed.ncbi.nlm.nih.gov/{pathway_pmids[0]}/"
+    if key == "context_fit" and context_pmids:
+        return name, f"https://pubmed.ncbi.nlm.nih.gov/{context_pmids[0]}/"
+    if key == "dependency_signal" and symbol:
+        return name, f"https://depmap.org/portal/gene/{symbol}"
+    return name, None
+
+
+def _dimensions(
+    scores: dict[str, object],
+    *,
+    ensembl: str,
+    symbol: str,
+    pathway_pmids: list[str],
+    context_pmids: list[str],
+) -> list[ScoredDimension]:
     dimensions: list[ScoredDimension] = []
     for key, label in DIM_LABELS.items():
         if key not in scores:
             continue
-        value = float(scores[key])
-        dimensions.append(
-            ScoredDimension(key=key, label=label, value=round(value, 3), strength=_strength(value))
-        )
+        value = round(float(scores[key]), 3)
+        if key in FACT_DIMS:
+            phrasing = DIM_PHRASING[key]
+            text = phrasing["pro"] if value >= _PRO_MIN else phrasing["con"]
+            source, source_url = _dimension_source(
+                key,
+                ensembl=ensembl,
+                symbol=symbol,
+                pathway_pmids=pathway_pmids,
+                context_pmids=context_pmids,
+            )
+            dimensions.append(
+                ScoredDimension(
+                    key=key,
+                    label=text,
+                    value=value,
+                    strength=_strength(value),
+                    source=source,
+                    source_url=source_url,
+                )
+            )
+        else:
+            dimensions.append(
+                ScoredDimension(key=key, label=label, value=value, strength=_strength(value))
+            )
     return dimensions
 
 
@@ -121,6 +172,16 @@ def _headline(
     return f"{tier_label} passes the science gate — science {science:.2f}, technical {technical:.2f}."
 
 
+def _member_pmids(block: dict[str, object] | None) -> list[str]:
+    if not block:
+        return []
+    return [
+        str(pmid)
+        for member in block.get("members", [])
+        for pmid in (member.get("evidence_pmids") or [])
+    ]
+
+
 def build_card(
     rank: int,
     candidate_dict: dict[str, object],
@@ -139,7 +200,16 @@ def build_card(
     gate = GateStatus(scores.get("gate", "passed"))
     tier = ModelTier(candidate_dict["tier"])
     tier_label = _TIER_LABELS.get(tier, str(tier))
-    dimensions = _dimensions(scores)
+    pathway_pmids = _member_pmids(pathway)
+    context_pmids = _member_pmids(mechanism)
+    dimensions = _dimensions(
+        scores,
+        ensembl=str(target_context.get("target_id") or ""),
+        symbol=str(target_context.get("symbol") or ""),
+        pathway_pmids=pathway_pmids,
+        context_pmids=context_pmids,
+    )
+    fact_dims = [d for d in dimensions if d.key in FACT_DIMS]
     mechanism_fit = _mechanism(mechanism)
     overall = float(scores.get("total", 0.0) or 0.0)
     return RecommendationCard(
@@ -159,8 +229,8 @@ def build_card(
             technical=scores.get("tech_score"),
             context=scores.get("context_fit"),
         ),
-        reasons=[d for d in dimensions if d.value >= _STRONG_MIN],
-        watch_outs=[d for d in dimensions if d.value < _MODERATE_MIN],
+        reasons=[d for d in fact_dims if d.value >= _PRO_MIN],
+        watch_outs=[d for d in fact_dims if d.value < _PRO_MIN],
         dimensions=dimensions,
         context_notes=[str(note) for note in card_dict.get("context_for_decision", [])],
         science_gate=_science_gate(pathway),

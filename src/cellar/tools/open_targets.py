@@ -44,4 +44,6 @@ class TargetDiseaseEvidenceTool(Tool):
                 result = open_targets.target_profile(target_symbol)
         except Exception as error:
             return ToolResult(content=f"Open Targets lookup failed: {error}", is_error=True)
+        if isinstance(result, dict) and result.get("ensembl_id"):
+            result["reference"] = f"https://platform.opentargets.org/target/{result['ensembl_id']}"
         return ToolResult(content=json.dumps(result))
