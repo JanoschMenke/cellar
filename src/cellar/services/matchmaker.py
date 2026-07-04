@@ -2,19 +2,18 @@ from collections.abc import Callable
 from typing import TypeVar
 
 from cellar.services import isoforms, mechanism, pathway, proteomics, retrieval
-from cellar.tools.recommend import make_card, render_card_text
 from cellar.tools.scoring import rank
 
 from cellar.schemas.matchmaker import (
-    DecisionCard,
     FactsSummary,
     MatchmakerQuery,
-    MatchmakerResult,
     ModelCandidate,
     RelationSummary,
     SeedModel,
 )
+from cellar.schemas.recommendation import RecommendationReport
 from cellar.services.panels import seed_panel_for
+from cellar.services.recommendation import build_card
 
 _T = TypeVar("_T")
 
@@ -121,7 +120,7 @@ def _relation_summaries(relations: dict[str, dict[str, object]]) -> list[Relatio
 
 def run_matchmaker(
     query: MatchmakerQuery, panel: list[SeedModel] | None = None
-) -> MatchmakerResult:
+) -> RecommendationReport:
     seeds = panel if panel is not None else seed_panel_for(query.target_symbol)
     if not seeds:
         raise UnsupportedTargetError(
@@ -200,31 +199,24 @@ def run_matchmaker(
     ranked = rank(candidates, question)
     target_context = {"symbol": symbol}
     cards = [
-        _to_decision_card(
-            make_card(
-                candidate_dict,
-                question,
-                target_context,
-                isoform_summary,
-                proteomics_summary,
-                pathway_by_model.get(candidate_dict["name"]),
-                mechanism_by_model.get(candidate_dict["name"]),
-            )
+        build_card(
+            rank_index,
+            candidate_dict,
+            question,
+            target_context,
+            isoform_summary,
+            proteomics_summary,
+            pathway_by_model.get(candidate_dict["name"]),
+            mechanism_by_model.get(candidate_dict["name"]),
         )
-        for candidate_dict in ranked["ranked"]
+        for rank_index, candidate_dict in enumerate(ranked["ranked"], 1)
     ]
 
-    return MatchmakerResult(
+    return RecommendationReport(
         query=query,
         verdict=ranked["verdict"],
         in_vivo_recommended=ranked["in_vivo_recommended"],
         facts=facts,
         relations=_relation_summaries(relations),
         cards=cards,
-    )
-
-
-def _to_decision_card(card_dict: dict[str, object]) -> DecisionCard:
-    return DecisionCard.model_validate(
-        {**card_dict, "rendered_text": render_card_text(card_dict)}
     )

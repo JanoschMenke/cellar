@@ -8,7 +8,8 @@ from fastapi.staticfiles import StaticFiles
 from cellar.agents.streaming_agent import StreamingAgent
 from cellar.config import load_settings
 from cellar.prompts.matchmaker import MATCHMAKER_SYSTEM_PROMPT
-from cellar.schemas.matchmaker import MatchmakerQuery, MatchmakerResult, QuestionType
+from cellar.schemas.matchmaker import MatchmakerQuery, QuestionType
+from cellar.schemas.recommendation import RecommendationReport
 from cellar.services.llm import build_client
 from cellar.services.matchmaker import UnsupportedTargetError, run_matchmaker
 from cellar.tools.registry import build_matchmaker_tools
@@ -40,7 +41,7 @@ def create_app() -> FastAPI:
     @app.get("/recommend")
     def recommend(
         target_symbol: str, disease: str, question_type: QuestionType
-    ) -> MatchmakerResult:
+    ) -> RecommendationReport:
         query = MatchmakerQuery(
             target_symbol=target_symbol, disease=disease, question_type=question_type
         )

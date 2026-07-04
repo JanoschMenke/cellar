@@ -1,41 +1,16 @@
 import json
 
-from cellar.schemas.matchmaker import MatchmakerQuery, MatchmakerResult, QuestionType
+from cellar.schemas.matchmaker import MatchmakerQuery, QuestionType
+from cellar.schemas.recommendation import RecommendationReport
 from cellar.services.matchmaker import UnsupportedTargetError, run_matchmaker
 from cellar.tools.base import Tool, ToolResult
 
 
-def _compact(result: MatchmakerResult) -> dict[str, object]:
-    return {
-        "verdict": result.verdict,
-        "in_vivo_recommended": result.in_vivo_recommended,
-        "facts": {
-            "ot_direct_association": result.facts.ot_direct_association,
-            "small_molecule_tractable": result.facts.small_molecule_tractable,
-            "n_sourceable_models": result.facts.n_sourceable_models,
-            "n_problematic_models": result.facts.n_problematic_models,
-            "mrna_protein_discordant": result.facts.mrna_protein_discordant,
-            "protein_present": result.facts.protein_present,
-            "ms_absence_guard_applied": result.facts.ms_absence_guard_applied,
-            "isoform_specificity_risk": result.facts.isoform_specificity_risk,
-            "proteomics_modality_note": result.facts.proteomics_modality_note,
-        },
-        "ranked": [
-            {
-                "model": card.model_name,
-                "tier": str(card.tier),
-                "overall_score": card.overall_score,
-                "science_score": card.science_score,
-                "tech_score": card.tech_score,
-                "gate": str(card.gate),
-                "recommendation_strength": card.recommendation_strength,
-                "top_reasons": card.why_this_model[:2],
-                "top_watch_outs": card.watch_outs[:2],
-                "sourcing": card.sourcing.supplier_or_cro,
-            }
-            for card in result.cards
-        ],
-    }
+def _payload(result: RecommendationReport) -> dict[str, object]:
+    return result.model_dump(
+        mode="json",
+        exclude={"cards": {"__all__": {"rendered_markdown", "dimensions"}}},
+    )
 
 
 class RecommendModelsTool(Tool):
@@ -71,4 +46,4 @@ class RecommendModelsTool(Tool):
             result = run_matchmaker(query)
         except UnsupportedTargetError as error:
             return ToolResult(content=str(error), is_error=True)
-        return ToolResult(content=json.dumps(_compact(result)))
+        return ToolResult(content=json.dumps(_payload(result)))
