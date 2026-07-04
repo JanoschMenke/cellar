@@ -13,11 +13,13 @@ class ConsoleAgent:
         settings: Settings,
         tools: list[Tool],
         system: str | None = None,
+        verbose: bool = False,
     ) -> None:
         self._client = client
         self._settings = settings
         self._tools_by_name = {tool.name: tool for tool in tools}
         self._system = system or NOT_GIVEN
+        self._verbose = verbose
         self._transcript: list[MessageParam] = []
 
     def send(self, user_message: str) -> str:
@@ -46,13 +48,26 @@ class ConsoleAgent:
         for block in response.content:
             if block.type != "tool_use":
                 continue
+            arguments = dict(block.input)
             tool = self._tools_by_name.get(block.name)
             if tool is None:
+                self._log_tool(block.name, arguments, f"Unknown tool: {block.name}", is_error=True)
                 results.append(_tool_result(block.id, f"Unknown tool: {block.name}", is_error=True))
                 continue
-            outcome = tool.run(dict(block.input))
+            outcome = tool.run(arguments)
+            self._log_tool(block.name, arguments, outcome.content, is_error=outcome.is_error)
             results.append(_tool_result(block.id, outcome.content, is_error=outcome.is_error))
         return results
+
+    def _log_tool(
+        self, name: str, arguments: dict[str, object], content: str, is_error: bool
+    ) -> None:
+        if not self._verbose:
+            return
+        marker = "✗" if is_error else "→"
+        preview = content.replace("\n", " ")[:200]
+        print(f"  {marker} tool {name}({arguments})")
+        print(f"    ↳ {preview}")
 
 
 def _tool_result(tool_use_id: str, content: str, is_error: bool) -> dict[str, object]:

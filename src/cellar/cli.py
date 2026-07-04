@@ -1,4 +1,5 @@
 import os
+import sys
 from getpass import getpass
 
 from anthropic import AuthenticationError
@@ -45,9 +46,14 @@ def _build_selected_client(settings: Settings) -> LlmClient | None:
     return _build_direct_client(settings)
 
 
+def _verbose_requested() -> bool:
+    return "-v" in sys.argv or "--verbose" in sys.argv or bool(os.environ.get("CELLAR_VERBOSE"))
+
+
 def main() -> None:
     load_dotenv()
     settings = load_settings()
+    verbose = _verbose_requested()
     client = _build_selected_client(settings)
     if client is None:
         return
@@ -57,9 +63,12 @@ def main() -> None:
         settings=settings,
         tools=build_matchmaker_tools(),
         system=MATCHMAKER_SYSTEM_PROMPT,
+        verbose=verbose,
     )
 
     print(f"cellar console agent — provider {settings.provider}, model {settings.model_name}")
+    if verbose:
+        print("(verbose: tool calls will be shown)")
     print("Type a message, or 'exit' to quit.\n")
 
     while True:

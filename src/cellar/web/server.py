@@ -3,6 +3,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi.staticfiles import StaticFiles
 
 from cellar.agents.streaming_agent import StreamingAgent
 from cellar.config import load_settings
@@ -13,6 +14,7 @@ from cellar.services.matchmaker import UnsupportedTargetError, run_matchmaker
 from cellar.tools.registry import build_matchmaker_tools
 
 _STATIC_DIR = Path(__file__).parent / "static"
+_DESIGN_DIR = Path(__file__).parent / "design_system"
 
 
 def create_app() -> FastAPI:
@@ -25,6 +27,7 @@ def create_app() -> FastAPI:
         system=MATCHMAKER_SYSTEM_PROMPT,
     )
     app = FastAPI(title="cellar")
+    app.mount("/assets", StaticFiles(directory=_DESIGN_DIR), name="assets")
 
     @app.get("/")
     def index() -> HTMLResponse:
