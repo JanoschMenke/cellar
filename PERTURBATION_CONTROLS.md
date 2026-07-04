@@ -190,7 +190,53 @@ the arms to run, with provenance — not a full SOP.
 
 ---
 
-## 8. Open decisions (please pick before building)
+## 8. Ideal-model-spec reframe (where this layer really lives)
+
+This layer is one input to a larger idea: instead of only **ranking candidates**, first derive
+the **ideal model** for the question, then match reality to it. It inverts the pipeline:
+
+```
+evidence bundle ──► IdealModelSpec ──► match real candidates to spec ──► gap report
+                    (what SHOULD be)     (distance-to-ideal)             (watch-outs + build/commission)
+```
+
+The `IdealModelSpec` is the per-`(target × question)` target profile, assembled from the typed
+requirements the bundle already carries:
+
+- required genetics / driver context (`disease_features`),
+- protein-presence tier needed (`proteomics.py`),
+- model tier (2D → organoid → co-culture → in vivo),
+- mechanism-context conditions (`mechanism.py`),
+- **perturbation strategy + controls (this document, §4–§6)** — the spec is their home,
+- assay / throughput needs.
+
+Why it matters here:
+
+- **The gap becomes principled.** Watch-outs stop being ad-hoc per-dimension weaknesses and
+  become *the delta between the ideal spec and the best available real model*.
+- **The "no adequate model → go in vivo / CRO-built" branch gets teeth** — it emits a *concrete
+  spec of what to commission* (genetics, co-culture, perturbation arms), not a fallback string.
+- **Scoring can become "distance to ideal"** — arguably a cleaner formulation of the current
+  `0.65·science + 0.35·technical`, computed as how close each real model sits to the spec.
+
+**Grounding rule (same as everywhere):** the spec is **assembled deterministically** from
+already-computed requirements. The LLM only **prioritizes when requirements conflict** and
+**narrates** — it never invents a requirement. If the bundle is thin, the spec says
+"under-specified — resolve X" rather than fabricating confidence (mirror the `hypothesis`
+honesty rule).
+
+**Honest limit:** an ideal model that doesn't exist **cannot be benchmarked**. Its value is the
+matching + gap analysis + actionable build guidance, not a validated pick — state this on the card.
+
+**Staging:** a `spec-synthesis` stage after collation, consuming the frozen bundle
+(deterministic assembly + narrow LLM prioritization), with the Critic checking that every
+`required` spec field is either met by the chosen model or explicitly surfaced in the gap. It can
+run **alongside** the existing ranker first; unifying scoring into distance-to-ideal is a later,
+optional refactor — not required to ship this.
+
+---
+
+## 9. Open decisions (please pick before building)
 
 1. **Can redundancy ever be a hard requirement?** Recommendation: **no** — start it
    `hypothesis`-tagged and non-gating; propose the single-KO arm that would prove it. Revisit
@@ -201,10 +247,12 @@ the arms to run, with provenance — not a full SOP.
 3. **Where the redundancy signal lives** — extend the `pathway.py` relation map with a
    `redundancy` field, or a standalone `redundancy` block in the bundle? I lean standalone, so
    model-selection scoring can keep ignoring it cleanly.
+4. **Ideal-spec vs. ranker (§8)** — ship `IdealModelSpec` + gap report *alongside* the current
+   ranker first, or commit to refactoring scoring into distance-to-ideal now? I lean alongside.
 
 ---
 
-## 9. Suggested split of work
+## 10. Suggested split of work
 
 - **You:** `mm/perturbation.py` — the deterministic control generator (§5), the schemas (§4),
   and the card section (§7). All unit-testable against a fixed evidence-bundle fixture.
