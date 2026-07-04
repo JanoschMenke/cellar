@@ -17,7 +17,8 @@ The Model Matchmaker follows the repo's `src/cellar/` layout (see [CLAUDE.md](./
 external-data and LLM-derivation modules live under `services/`, deterministic capabilities
 under `tools/`, the shared data vocabulary under `schemas/`, and cached evidence under `data/`.
 
-- `services/retrieval.py`  — live clients (Open Targets, Cellosaurus, DepMap stub)
+- `services/retrieval.py`  — live clients (Open Targets, Cellosaurus)
+- `services/cell_model_passports.py` — Sanger Cell Model Passports (DepMap) JSON:API client: model/gene lookup, per-model datasets, matchmaker fact sheets
 - `services/proteomics.py` — tiered protein-evidence synthesizer + MS-absence guard; live PRIDE + HPA
 - `services/isoforms.py`   — Ensembl protein-coding isoform enumeration + splicing-risk flag
 - `services/pathway.py`    — STRING partners + literature-derived relation map + science gate

@@ -8,6 +8,7 @@ Candidate biology (from the live probe + known PDAC model landscape):
 - OT direct assoc score ~0 (teaching case) but SM-tractable enzyme.
 - ~333 sourceable PDAC lines; the KRAS-mutant, target-expressing subset is small.
 """
+from cellar.services import cell_model_passports as cmp
 from cellar.services import isoforms, mechanism, pathway, proteomics, retrieval
 from cellar.schemas.matchmaker import ModelCandidate
 from cellar.tools.recommend import make_card, render_card_text
@@ -148,8 +149,41 @@ def apply_pathway(cands, relations, moa_context, question_type):
         moa_by_model[c.name] = mo
     return cands, pw_by_model, moa_by_model
 
+def _base_name(candidate_name):
+    return candidate_name.split(" (")[0]
+
+def cmp_facts_for(cands):
+    """Resolve each candidate against Cell Model Passports (Sanger DepMap). Real
+    cell lines resolve to an SIDM model + data availability; organoids/GEMMs/CROs
+    built off-catalogue return nothing and are left as-is."""
+    facts = {}
+    for c in cands:
+        base = _base_name(c.name)
+        if base not in facts:
+            facts[base] = cmp.model_facts(base)
+    return {k: v for k, v in facts.items() if v}
+
+def apply_cmp(cands, facts):
+    """Attach CMP provenance (SIDM id + passport URL) to resolved candidates so it
+    flows into each decision card's sourcing block."""
+    for c in cands:
+        f = facts.get(_base_name(c.name))
+        if f:
+            c.catalog_url = f["catalog_url"]
+            if f["sidm_id"] not in c.source:
+                c.source = f"{c.source} · CMP {f['sidm_id']}".strip(" ·")
+    return cands
+
 if __name__ == "__main__":
     facts = build_facts()
+    cmp_facts = cmp_facts_for(candidates())
+    print("=== CELL MODEL PASSPORTS (Sanger DepMap) — resolved cell lines ===")
+    for base, f in cmp_facts.items():
+        kras = cmp.model_gene_mutations(f["sidm_id"], "KRAS")
+        kras_hit = kras["records"][0].get("protein") if kras["records"] else "no KRAS call in CMP"
+        print(f"  {base:12} {f['sidm_id']} [{f['model_type']}, {f['growth_properties']}] "
+              f"datasets={f['datasets_available']} KRAS={kras_hit}")
+    print()
     iso, pro = facts["isoforms"], facts["proteomics"]
     relations = facts["relations"]
     print("=== LIVE FACTS (ZDHHC20 / PDAC) ===")
@@ -187,7 +221,8 @@ if __name__ == "__main__":
     #   target_validation  — EGFR-ligand readout is retrofittable into a 2D line
     #   immune_mechanism   — needs an immune compartment a 2D line can't provide -> context gate
     for qtype in ["target_validation", "immune_mechanism"]:
-        cands, pw_by_model, moa_by_model = apply_pathway(candidates(), relations,
+        cands = apply_cmp(candidates(), cmp_facts)
+        cands, pw_by_model, moa_by_model = apply_pathway(cands, relations,
                                                          moa_context, qtype)
         res = rank(cands, qtype)
         print(f"\n{'='*74}\nQUESTION: {qtype}\n{'='*74}")

@@ -139,7 +139,7 @@ def cptac_tumor_quant(gene, tumor="PDAC", detected=None, log2fc=None,
 # ------------------------------------------------------- DepMap / CCLE (model-specific)
 # The highest-value tier for MODEL SELECTION: Gygi-lab TMT proteomics across
 # ~375 cancer cell lines answers "does PANC-1 / MIA PaCa-2 specifically make this
-# protein". Not the same as DepMap dependency (that is retrieval.depmap_stub).
+# protein". Not the same as DepMap dependency (that is services.cell_model_passports).
 # When wired, return {line -> {detected, protein_intensity_zscore}}.
 def depmap_proteomics(gene, line_intensities=None):
     """line_intensities: {cell_line -> 0..1 relative protein intensity} if cached

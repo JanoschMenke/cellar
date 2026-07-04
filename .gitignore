@@ -220,3 +220,6 @@ __marimo__/
 # From Model Matchmaker tarball
 .DS_Store
 handoff/
+
+# cellar runtime workspace + CMP response cache
+.cellar/

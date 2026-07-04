@@ -84,8 +84,7 @@ def cello_models(disease_term, rows=1000):
     return out
 
 # ---------------------------------------------------------------- DepMap (Sanger)
-# depmap.org needs allowlist approval; Sanger mirror + downloadable CSVs work.
-# In the hackathon, cache the gene-essentiality + expression CSV for your target
-# once and read locally so the demo never depends on a live call.
-def depmap_stub(symbol):
-    return {"symbol": symbol, "note": "load cached DepMap CRISPR + expression CSV here"}
+# The Sanger DepMap's curated model + genomics hub is Cell Model Passports, which
+# has a public JSON:API. The old depmap_stub placeholder is replaced by that live
+# client: see services.cell_model_passports (model_facts, model_gene_mutations,
+# per-model expression/CRISPR datasets).
