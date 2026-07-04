@@ -1,12 +1,37 @@
-# cellar
+# cellar — Model Matchmaker
 
-An agentic scientist system: autonomous agents that propose hypotheses, plan and run
-experiments, gather evidence from tools, critique results, and report findings.
+Picks the right in vitro biological model (2D line, organoid, co-culture, or
+"go in vivo") for testing a **target** in a **disease**, with a science-first
+two-stage gate, literature-grounded evidence, and CRO/supplier sourcing.
+
+Worked example: **ZDHHC20 in PDAC**.
+
+## Run the demo
+```bash
+PYTHONPATH=. python demo_pdac_zdhhc20.py
+```
+
+## Layout
+- `mm/retrieval.py`  — live clients (Open Targets, Cellosaurus, DepMap stub)
+- `mm/proteomics.py` — tiered protein-evidence synthesizer + MS-absence guard; live PRIDE + HPA
+- `mm/isoforms.py`   — Ensembl protein-coding isoform enumeration + splicing-risk flag
+- `mm/pathway.py`    — STRING partners + literature-derived relation map + science gate
+- `mm/mechanism.py`  — MoA -> culture-context layer ("right target, wrong model" check)
+- `mm/scoring.py`    — two-stage (science 0.65 / technical 0.35) deterministic scoring
+- `mm/recommend.py`  — per-model decision cards (why / watch-outs / context / sourcing)
+- `mm/evidence.py`   — Elicit + Amass query templates
+- `demo_pdac_zdhhc20.py` — end-to-end runnable example
+
+See `PROPOSAL.md` for the full design rationale.
+
+---
+
+## Environment (uv)
 
 This project uses **[uv](https://docs.astral.sh/uv/)** to manage Python, dependencies, and the
 virtual environment. If you have never used uv, read the short guide below.
 
-## What is uv?
+### What is uv?
 
 uv is a fast, all-in-one Python package and project manager (a drop-in replacement for `pip`,
 `pip-tools`, `virtualenv`, and `pyenv`). For this repo it does three things:
@@ -18,7 +43,7 @@ uv is a fast, all-in-one Python package and project manager (a drop-in replaceme
 You generally never activate the virtualenv or run `pip` by hand — you prefix commands with
 `uv run`, and uv makes sure the environment is correct first.
 
-## Installing uv
+### Installing uv
 
 **macOS / Linux:**
 
@@ -46,7 +71,7 @@ uv --version
 
 To update uv later: `uv self update`.
 
-## Getting started
+### Getting started
 
 Clone the repo, then from the project root:
 
@@ -58,13 +83,7 @@ uv sync
 creates `.venv/`, and installs all dependencies (plus this project as an editable package).
 That single command is all you need to get a working environment.
 
-Run code with `uv run`:
-
-```bash
-uv run python -c "import cellar; print(cellar.load_settings())"
-```
-
-## Everyday commands
+### Everyday commands
 
 | Task                              | Command                          |
 | --------------------------------- | -------------------------------- |
@@ -77,16 +96,8 @@ uv run python -c "import cellar; print(cellar.load_settings())"
 | Show the dependency tree          | `uv tree`                        |
 | Upgrade the lockfile              | `uv lock --upgrade`              |
 
-### Adding dependencies
-
-Always add libraries through uv so `pyproject.toml` and `uv.lock` stay in sync:
-
-```bash
-uv add pydantic
-```
-
-Do **not** hand-edit the `dependencies` list in `pyproject.toml` or call `pip install` — uv
-manages both the manifest and the lockfile together, and manual edits break reproducibility.
+Always add libraries through uv so `pyproject.toml` and `uv.lock` stay in sync. Do **not**
+hand-edit the `dependencies` list in `pyproject.toml` or call `pip install`.
 
 ## Running the console agent
 
@@ -137,7 +148,8 @@ same deterministic-tool pattern the whole project is built on. Type `exit` (or C
 Environment overrides: `CELLAR_PROVIDER` (`direct_api` | `bedrock`), `CELLAR_MODEL_NAME`,
 `AWS_REGION`.
 
-## Project layout
+## Project layout notes
 
-The package lives under `src/cellar/`. See [CLAUDE.md](./CLAUDE.md) for the module boundaries,
-coding conventions, and the deterministic-core / agent-at-the-edges design philosophy.
+The original uv scaffold package lives under `src/cellar/`. See [CLAUDE.md](./CLAUDE.md) for the
+module boundaries, coding conventions, and the deterministic-core / agent-at-the-edges design
+philosophy.
