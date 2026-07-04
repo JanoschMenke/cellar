@@ -15,6 +15,7 @@ def _payload(result: RecommendationReport) -> dict[str, object]:
 
 class RecommendModelsTool(Tool):
     name = "recommend_models"
+    include_in_agent = False
     description = (
         "Rank in-vitro / in-vivo biological models for testing a target in a disease, "
         "given the scientist's question. Runs the deterministic two-stage science-then-"

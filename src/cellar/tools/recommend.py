@@ -23,6 +23,48 @@ TECH_LABELS = {
 }
 DIM_LABELS = {**SCIENCE_LABELS, **TECH_LABELS}
 
+FACT_DIMS = (
+    "protein_present",
+    "pathway_coherence",
+    "context_fit",
+    "isoform_match",
+    "disease_features_match",
+    "dependency_signal",
+)
+
+DIM_PHRASING = {
+    "protein_present": {
+        "pro": "The protein itself is detected in this model, not just its mRNA.",
+        "con": "Little or no protein detected here — mRNA presence alone won't validate the target.",
+        "source": "Human Protein Atlas",
+    },
+    "pathway_coherence": {
+        "pro": "Its pathway partners are co-expressed, so the target's signalling context is intact.",
+        "con": "Key pathway partners are missing or low — the target's signalling context may be broken.",
+        "source": "PubMed",
+    },
+    "context_fit": {
+        "pro": "The mechanism you want to study can actually be read out in this model.",
+        "con": "This model can't show the mechanism's readout without added culture conditions.",
+        "source": "PubMed",
+    },
+    "isoform_match": {
+        "pro": "Expresses the functional isoform with the catalytic domain intact.",
+        "con": "The dominant isoform here lacks the functional region — you may assay the wrong protein.",
+        "source": "Ensembl",
+    },
+    "disease_features_match": {
+        "pro": "Carries the disease's driver alterations — the right genetic background.",
+        "con": "Missing the expected disease-driver alterations — genetic background may not match.",
+        "source": "Cell Model Passports / COSMIC",
+    },
+    "dependency_signal": {
+        "pro": "Cells depend on this target in loss-of-function screens, so effects should be detectable.",
+        "con": "Weak or absent dependency in screens — knockout effects may be hard to detect.",
+        "source": "DepMap",
+    },
+}
+
 def _bucket(v):
     return "strong" if v >= 0.7 else "moderate" if v >= 0.45 else "weak"
 
