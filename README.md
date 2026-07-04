@@ -8,19 +8,26 @@ Worked example: **ZDHHC20 in PDAC**.
 
 ## Run the demo
 ```bash
-PYTHONPATH=. python demo_pdac_zdhhc20.py
+uv run python examples/pdac_zdhhc20.py
 ```
 
 ## Layout
-- `mm/retrieval.py`  — live clients (Open Targets, Cellosaurus, DepMap stub)
-- `mm/proteomics.py` — tiered protein-evidence synthesizer + MS-absence guard; live PRIDE + HPA
-- `mm/isoforms.py`   — Ensembl protein-coding isoform enumeration + splicing-risk flag
-- `mm/pathway.py`    — STRING partners + literature-derived relation map + science gate
-- `mm/mechanism.py`  — MoA -> culture-context layer ("right target, wrong model" check)
-- `mm/scoring.py`    — two-stage (science 0.65 / technical 0.35) deterministic scoring
-- `mm/recommend.py`  — per-model decision cards (why / watch-outs / context / sourcing)
-- `mm/evidence.py`   — Elicit + Amass query templates
-- `demo_pdac_zdhhc20.py` — end-to-end runnable example
+
+The Model Matchmaker follows the repo's `src/cellar/` layout (see [CLAUDE.md](./CLAUDE.md)):
+external-data and LLM-derivation modules live under `services/`, deterministic capabilities
+under `tools/`, the shared data vocabulary under `schemas/`, and cached evidence under `data/`.
+
+- `services/retrieval.py`  — live clients (Open Targets, Cellosaurus, DepMap stub)
+- `services/proteomics.py` — tiered protein-evidence synthesizer + MS-absence guard; live PRIDE + HPA
+- `services/isoforms.py`   — Ensembl protein-coding isoform enumeration + splicing-risk flag
+- `services/pathway.py`    — STRING partners + literature-derived relation map + science gate
+- `services/mechanism.py`  — MoA -> culture-context layer ("right target, wrong model" check)
+- `services/evidence.py`   — Elicit + Amass query templates
+- `tools/scoring.py`       — two-stage (science 0.65 / technical 0.35) deterministic scoring
+- `tools/recommend.py`     — per-model decision cards (why / watch-outs / context / sourcing)
+- `schemas/matchmaker.py`  — `ModelCandidate` + `ModelTier` / `QuestionType` enums
+- `data/`                  — cached evidence (ZDHHC20 relations, PRIDE probe)
+- `examples/pdac_zdhhc20.py` — end-to-end runnable example
 
 See `PROPOSAL.md` for the full design rationale.
 

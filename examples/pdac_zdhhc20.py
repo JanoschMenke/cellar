@@ -8,38 +8,33 @@ Candidate biology (from the live probe + known PDAC model landscape):
 - OT direct assoc score ~0 (teaching case) but SM-tractable enzyme.
 - ~333 sourceable PDAC lines; the KRAS-mutant, target-expressing subset is small.
 """
-import json, sys, os
-sys.path.insert(0, os.path.dirname(__file__))
-from mm import retrieval as R
-from mm import isoforms as ISO
-from mm import proteomics as PROT
-from mm import pathway as PW
-from mm import mechanism as MOA
-from mm.scoring import ModelCandidate, rank, score_candidate
-from mm.recommend import make_card, render_card_text
+from cellar.services import isoforms, mechanism, pathway, proteomics, retrieval
+from cellar.schemas.matchmaker import ModelCandidate
+from cellar.tools.recommend import make_card, render_card_text
+from cellar.tools.scoring import rank
 
 def build_facts():
-    tid = R.ot_resolve_target("ZDHHC20")
-    did = R.ot_resolve_disease("pancreatic ductal adenocarcinoma")
-    prof = R.ot_target_profile(tid)
-    assoc = R.ot_assoc_score(tid, did["id"])
-    models = R.cello_models("pancreatic ductal adenocarcinoma")
-    iso = ISO.isoform_risk_summary(ISO.protein_coding_isoforms(tid))
-    pro = PROT.hpa_protein_evidence(tid, disease_hint="Pancreatic")
+    tid = retrieval.ot_resolve_target("ZDHHC20")
+    did = retrieval.ot_resolve_disease("pancreatic ductal adenocarcinoma")
+    prof = retrieval.ot_target_profile(tid)
+    assoc = retrieval.ot_assoc_score(tid, did["id"])
+    models = retrieval.cello_models("pancreatic ductal adenocarcinoma")
+    iso = isoforms.isoform_risk_summary(isoforms.protein_coding_isoforms(tid))
+    pro = proteomics.hpa_protein_evidence(tid, disease_hint="Pancreatic")
     # Tiered protein evidence: HPA (localization/antibody) + PRIDE MS detectability
     # (cached live probe: ZDHHC20 Q5W0Z9 -> 0 MS projects). CPTAC/DepMap are
     # documented wiring points; when cached they dominate the synthesis.
-    pride = PROT.ZDHHC20_PRIDE
-    protein_evidence = PROT.synthesize_protein_evidence(
+    pride = proteomics.ZDHHC20_PRIDE
+    protein_evidence = proteomics.synthesize_protein_evidence(
         hpa=pro, pride=pride,
-        cptac=PROT.cptac_tumor_quant("ZDHHC20"),        # not wired -> ignored
-        depmap=PROT.depmap_proteomics("ZDHHC20"))       # not wired -> ignored
-    partners = PW.string_partners("ZDHHC20")
-    # Literature-derived relations (cached; produced live by PW.build_relation_map
+        cptac=proteomics.cptac_tumor_quant("ZDHHC20"),        # not wired -> ignored
+        depmap=proteomics.depmap_proteomics("ZDHHC20"))       # not wired -> ignored
+    partners = pathway.string_partners("ZDHHC20")
+    # Literature-derived relations (cached; produced live by pathway.build_relation_map
     # in the repl tool from PubMed abstracts). This replaces the old asserted
     # "GOLGA7 = required cofactor" checklist. Key result: none of ZDHHC20's
     # headline partners actually gate model selection.
-    relations = PW.ZDHHC20_RELATIONS
+    relations = pathway.ZDHHC20_RELATIONS
     return {
         "target_id": tid, "disease_id": did["id"],
         "sm_tractable": any(x["modality"] == "SM" for x in prof["tractability"]),
@@ -62,7 +57,7 @@ def build_facts():
 #
 # TEACHING POINT (corrected): GOLGA7 is low in PANC-1, but GOLGA7 is NOT a
 # functional requirement for ZDHHC20 (it stabilises the DHHC9 subfamily, which
-# ZDHHC20 is not part of — literature-derived, see mm/pathway.ZDHHC20_RELATIONS).
+# ZDHHC20 is not part of — literature-derived, see services.pathway.ZDHHC20_RELATIONS).
 # So low GOLGA7 must NOT reject PANC-1. What legitimately fails a model is losing
 # the enzyme itself: the deliberately-broken case here is a line expressing only a
 # truncated ZDHHC20 isoform lacking the catalytic DHHC domain -> hard reject on
@@ -140,12 +135,12 @@ def apply_pathway(cands, relations, moa_context, question_type):
     pw_by_model, moa_by_model = {}, {}
     for c in cands:
         expr = MODEL_COEXPRESSION.get(c.name, {})
-        pw = PW.pathway_coherence(expr, relations,
+        pw = pathway.pathway_coherence(expr, relations,
                                   target_present=c.protein_present,
                                   catalytic_domain_ok=MODEL_CATALYTIC_OK.get(c.name, True))
         c.pathway_coherence = pw["pathway_coherence"] if pw["pathway_coherence"] is not None else 0.5
         c.passed_science_gate = (pw["passed_science_gate"] is not False)
-        mo = MOA.match_model_context(c.tier, moa_context, question_type,
+        mo = mechanism.match_model_context(c.tier, moa_context, question_type,
                                      capability_overrides=MODEL_CAP_OVERRIDES.get(c.name))
         c.context_fit = mo["context_fit"]
         c.context_required_unmet = mo["context_required_unmet"]
@@ -178,9 +173,9 @@ if __name__ == "__main__":
               f"pmids={r.get('evidence_pmids')}")
 
     # MoA -> culture-context requirements (cached literature-derived; produced live
-    # by MOA.build_moa_context in the repl tool). This drives whether the mechanism's
+    # by mechanism.build_moa_context in the repl tool). This drives whether the mechanism's
     # readout is even OBSERVABLE in a given model, and what to add to the culture.
-    moa_context = MOA.ZDHHC20_MOA_CONTEXT
+    moa_context = mechanism.ZDHHC20_MOA_CONTEXT
     print("\nMoA culture-context requirements (mechanism -> model):")
     for r in moa_context["requirements"]:
         pm = ",".join(r.get("evidence_pmids") or []) or ("hypothesis" if r.get("needs_verification") else "-")

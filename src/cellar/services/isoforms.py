@@ -9,7 +9,8 @@ retained, and expose a per-model 'does it express the RIGHT isoform' check that
 feeds scoring (currently from literature/Elicit; junction-level quant from
 GTEx/DepMap RNA is the stretch goal).
 """
-import urllib.request, json
+import json
+import urllib.request
 
 E = "https://rest.ensembl.org"
 

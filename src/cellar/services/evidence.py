@@ -37,7 +37,8 @@ AMASS_BASE = "https://api.amass.tech/api/v1"
 
 def amass_search(core, query, limit=50, api_key=None):
     """POST /v1/cores/{core}/search — returns cited hits. Fill auth header."""
-    import json, urllib.request
+    import json
+    import urllib.request
     url = f"{AMASS_BASE}/cores/{core}/search"
     body = json.dumps({"query": query, "limit": min(limit, 300)}).encode()
     hdr = {"Content-Type": "application/json"}

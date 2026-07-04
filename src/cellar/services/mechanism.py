@@ -35,7 +35,9 @@ Design mirrors pathway.py: relations/requirements are DERIVED FROM LITERATURE
 (build_moa_context runs in the repl tool with host.mcp/host.llm), cached to JSON,
 and consumed deterministically in the python kernel.
 """
-import json, os, re
+import json
+import os
+import re
 
 # ------------------------------------------------------------------ taxonomy
 # The conditions a mechanism can require of a model. Each maps to a capability a

@@ -7,39 +7,19 @@ defensible and reproducible for the demo.
 The 10 decision dimensions from the design doc, collapsed into 6 computable
 signals + 4 that come from the evidence layer (Elicit/Amass).
 """
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict
+
+from cellar.schemas.matchmaker import ModelCandidate
 
 # Question type -> which model tier the biology actually calls for.
 # This is the "2D -> 3D -> co-culture -> in vivo" ladder, keyed on intent.
-QUESTION_TIER_PRIOR = {
+QUESTION_TIER_PRIOR: dict[str, dict[str, float]] = {
     "hts_screen":        {"2d_line": 1.0, "organoid": 0.5, "coculture": 0.2, "in_vivo": 0.0},
     "target_validation": {"2d_line": 0.7, "organoid": 0.9, "coculture": 0.6, "in_vivo": 0.4},
     "mechanism":         {"2d_line": 0.5, "organoid": 0.9, "coculture": 0.8, "in_vivo": 0.6},
     "immune_mechanism":  {"2d_line": 0.1, "organoid": 0.6, "coculture": 1.0, "in_vivo": 0.8},
     "efficacy":          {"2d_line": 0.3, "organoid": 0.7, "coculture": 0.6, "in_vivo": 1.0},
 }
-
-@dataclass
-class ModelCandidate:
-    name: str
-    tier: str                      # one of the tier keys above
-    source: str = ""               # ATCC / ECACC / HUB / CRO name
-    catalog_url: str = ""
-    mrna_expressed: float = 0.5    # from RNA-seq — NOT sufficient on its own
-    protein_present: float = 0.5   # from MS/CPTAC/HPA protein — the real gate
-    isoform_match: float = 0.5     # expresses the functional (catalytic) isoform
-    pathway_coherence: float = 0.5 # cofactor/substrate/upstream co-expressed (science gate)
-    passed_science_gate: bool = True  # False if a required cofactor/upstream is absent
-    context_fit: float = 1.0       # MoA<->culture-context match (mechanism.py); can the
-                                   # mechanism's readout even be OBSERVED in this model
-    context_required_unmet: bool = False  # a REQUIRED, non-retrofittable context is missing
-                                   # -> right target, wrong model (hard gate)
-    disease_features_match: float = 0.5  # carries driver mutations/subtype
-    dependency_signal: float = 0.5 # DepMap CRISPR effect of the target
-    genetic_tractable: float = 0.5 # can you CRISPR the target here
-    provenance_ok: float = 1.0     # 0 if Cellosaurus-flagged problematic
-    prior_use: float = 0.0         # from Elicit: used for this target before?
-    scores: dict = field(default_factory=dict)
 
 # Two-stage scoring. STAGE 1 = SCIENCE (does the biology hold in this model):
 # protein present, right isoform, pathway coherent, disease drivers, dependency.
@@ -88,7 +68,7 @@ def score_candidate(c: ModelCandidate, question_type: str) -> ModelCandidate:
                 "total": round(total, 3)}
     return c
 
-def go_in_vivo_verdict(candidates, question_type):
+def go_in_vivo_verdict(candidates: list[ModelCandidate], question_type: str) -> tuple[bool, str]:
     """The honest fallback: if no in-vitro candidate clears the bar for the
     biological question, recommend in vivo / build-a-model. Cheap and it's the
     most credible, differentiating feature."""
@@ -100,7 +80,7 @@ def go_in_vivo_verdict(candidates, question_type):
         return True, f"Question '{question_type}' needs an organism; best in-vitro only {best:.2f}."
     return False, f"Adequate in-vitro model exists (best={best:.2f})."
 
-def rank(candidates, question_type):
+def rank(candidates: list[ModelCandidate], question_type: str) -> dict[str, object]:
     scored = [score_candidate(c, question_type) for c in candidates]
     scored.sort(key=lambda c: c.scores["total"], reverse=True)
     go_vivo, why = go_in_vivo_verdict(scored, question_type)

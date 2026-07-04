@@ -5,7 +5,9 @@ so the scoring/judge layer stays decoupled from HTTP.
 
 Verified live against the real APIs for ZDHHC20 / PDAC (see docstrings).
 """
-import json, urllib.parse, urllib.request
+import json
+import urllib.parse
+import urllib.request
 
 def _post(url, payload, timeout=60):
     req = urllib.request.Request(url, data=json.dumps(payload).encode(),

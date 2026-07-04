@@ -35,7 +35,10 @@ Consequences for the gate:
    domain, see isoforms.py) plus substrate availability (EGFR) and oncogenic
    context (KRAS) as relevance modifiers.
 """
-import json, os, urllib.request, urllib.parse
+import json
+import os
+import urllib.parse
+import urllib.request
 
 def _get_json(url, t=40):
     req = urllib.request.Request(url, headers={"Accept": "application/json"})

@@ -28,7 +28,9 @@ Tiered protein-evidence hierarchy (highest value for MODEL SELECTION first):
   5. modality_guard   Olink/SomaScan router — don't commission a plasma panel
                       for an intracellular target
 """
-import json, os, urllib.request
+import json
+import os
+import urllib.request
 
 def _get(url, t=60):
     req = urllib.request.Request(url, headers={"Content-Type": "application/json"})
