@@ -17,7 +17,8 @@ The Model Matchmaker follows the repo's `src/cellar/` layout (see [CLAUDE.md](./
 external-data and LLM-derivation modules live under `services/`, deterministic capabilities
 under `tools/`, the shared data vocabulary under `schemas/`, and cached evidence under `data/`.
 
-- `services/retrieval.py`  — live clients (Open Targets, Cellosaurus)
+- `services/retrieval.py`  — live clients (Open Targets, Cellosaurus disease search)
+- `services/cellosaurus.py` — Cellosaurus client: cell-line identity, provenance/reliability (problematic-line flags), supplier catalogue numbers, and cross-refs (CVCL → SIDM/DepMap/ATCC)
 - `services/cell_model_passports.py` — Sanger Cell Model Passports (DepMap) JSON:API client: model/gene lookup, per-model datasets, matchmaker fact sheets
 - `services/dependency.py` — CRISPR gene-dependency ("is my target essential here") from the Sanger/Broad integrated Cancer Dependency Map (Project Score `crispr_ko` gene-effect); DepMap-equivalent, queried live via the CMP API
 - `services/proteomics.py` — tiered protein-evidence synthesizer + MS-absence guard; live PRIDE + HPA
@@ -157,10 +158,12 @@ same deterministic-tool pattern the whole project is built on. Type `exit` (or C
 The agent also carries **Cell Model Passports tools** backed by `services/cell_model_passports.py`.
 Ask it something like *"Is MIA PaCa-2 in Cell Model Passports, and does it carry a KRAS
 mutation?"* and it calls `find_cell_model` / `cell_model_gene_mutations`, then answers from the
-live Sanger data (SIDM id, available datasets, KRAS G12C, …). It also has a `gene_dependency`
-tool — *"Is KRAS a CRISPR dependency in MIA PaCa-2?"* returns the gene-effect score from the
-Sanger/Broad Cancer Dependency Map. Data sources plug into the agent as additional `Tool`s
-(registered in `tools/registry.py`).
+live Sanger data (SIDM id, available datasets, KRAS G12C, …). A `gene_dependency` tool — *"Is
+KRAS a CRISPR dependency in MIA PaCa-2?"* — returns the gene-effect score from the Sanger/Broad
+Cancer Dependency Map, and a `cell_line_provenance` tool adds Cellosaurus identity/reliability
+checks — *"Is the KB cell line problematic?"* returns its CVCL accession, the contamination flag,
+supplier catalogue numbers, and cross-refs to SIDM/DepMap. Data sources plug into the agent as
+additional `Tool`s (registered in `tools/registry.py`).
 
 Environment overrides: `CELLAR_PROVIDER` (`direct_api` | `bedrock`), `CELLAR_MODEL_NAME`,
 `AWS_REGION`.
