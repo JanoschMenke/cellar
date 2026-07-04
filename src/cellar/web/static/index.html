@@ -280,6 +280,8 @@
   const input = document.getElementById("input");
   const sendBtn = document.getElementById("send");
   const modelChip = document.getElementById("model");
+  const resultsBody = document.getElementById("results-body");
+  const resultsSub = document.getElementById("results-sub");
 
   let activeES = null;
   let activeFinish = null;
@@ -467,8 +469,8 @@
       try { report = JSON.parse(ev.content); } catch (e) { report = null; }
       if (report && Array.isArray(report.cards)) {
         const n = report.cards.length;
-        card._res.textContent = (report.verdict || "") + "  ·  " + n + " model" + (n === 1 ? "" : "s") + " ranked";
-        card.insertAdjacentElement("afterend", renderRecommendations(report));
+        card._res.textContent = (report.verdict || "") + "  ·  " + n + " model" + (n === 1 ? "" : "s") + " ranked → see panel";
+        showRecommendations(report);
         return;
       }
     }
@@ -518,35 +520,37 @@
   }
 
   function recCard(c) {
-    const card = el("div", "rec-card" + (c.recommended ? "" : " rec-card--rejected"));
+    const card = el("details", "rec-card" + (c.recommended ? "" : " rec-card--rejected"));
 
-    const head = el("div", "rec-head");
+    const head = el("summary", "rec-head");
+    head.appendChild(el("span", "rec-chevron", "▸"));
     head.appendChild(el("span", "rec-rank", "#" + c.rank));
     head.appendChild(el("span", "rec-name", c.model_name));
+    head.appendChild(el("span", "rec-grow"));
     const tier = el("span", "rec-chip", c.tier_label);
     const tok = TIER_TOKEN[c.tier] || "cellline";
     tier.style.color = "var(--cellar-" + tok + ")";
     tier.style.background = "var(--cellar-" + tok + "-tint)";
     tier.style.borderColor = "var(--cellar-" + tok + "-border)";
     head.appendChild(tier);
-    head.appendChild(el("span", "rec-grow"));
-    head.appendChild(el("span", "rec-conf", c.confidence));
-    head.appendChild(el("span", "rec-badge " + (c.recommended ? "rec-badge--yes" : "rec-badge--no"), c.verdict_label));
+    head.appendChild(el("span", "rec-badge " + (c.recommended ? "rec-badge--yes" : "rec-badge--no"),
+      c.recommended ? "Recommended" : "Rejected"));
     card.appendChild(head);
 
-    card.appendChild(el("div", "rec-headline", c.headline));
+    const body = el("div", "rec-body");
+    body.appendChild(el("div", "rec-headline", c.headline));
 
     const scores = el("div", "rec-scores");
     scores.appendChild(scoreBar("Overall", c.scores.overall));
     scores.appendChild(scoreBar("Science", c.scores.science));
     scores.appendChild(scoreBar("Technical", c.scores.technical));
     if (c.scores.context != null) scores.appendChild(scoreBar("MoA context", c.scores.context));
-    card.appendChild(scores);
+    body.appendChild(scores);
 
     const why = section("Why this model", (c.reasons || []).map((d) => dimRow(d, "good")));
-    if (why) card.appendChild(why);
+    if (why) body.appendChild(why);
     const watch = section("Watch-outs", (c.watch_outs || []).map((d) => dimRow(d, "warn")));
-    if (watch) card.appendChild(watch);
+    if (watch) body.appendChild(watch);
 
     const actions = (c.mechanism && c.mechanism.actions) || [];
     const actNodes = actions.map((a) => {
@@ -554,11 +558,11 @@
       return el("div", "rec-action", line);
     });
     const act = section("Culture actions to make the mechanism observable", actNodes);
-    if (act) card.appendChild(act);
+    if (act) body.appendChild(act);
 
     const notes = (c.context_notes || []).map((t) => el("div", "rec-note", t));
     const ctx = section("Context for your decision", notes);
-    if (ctx) card.appendChild(ctx);
+    if (ctx) body.appendChild(ctx);
 
     const src = c.sourcing || {};
     if (src.supplier_or_cro || src.catalog_url) {
@@ -569,15 +573,19 @@
         a.href = src.catalog_url; a.target = "_blank"; a.rel = "noopener";
         foot.appendChild(a);
       }
-      card.appendChild(foot);
+      body.appendChild(foot);
     }
+    card.appendChild(body);
     return card;
   }
 
-  function renderRecommendations(report) {
-    const wrap = el("div", "rec-cards");
-    report.cards.forEach((c) => wrap.appendChild(recCard(c)));
-    return wrap;
+  function showRecommendations(report) {
+    const q = report.query || {};
+    resultsSub.textContent = [q.target_symbol, q.disease, q.question_type].filter(Boolean).join(" · ")
+      || (report.verdict || "");
+    resultsBody.replaceChildren();
+    report.cards.forEach((c) => resultsBody.appendChild(recCard(c)));
+    resultsBody.scrollTop = 0;
   }
 
   function send(text) {
