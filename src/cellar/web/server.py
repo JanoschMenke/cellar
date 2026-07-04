@@ -39,6 +39,11 @@ def create_app() -> FastAPI:
     def config() -> dict[str, str]:
         return {"provider": settings.provider, "model": settings.model_name}
 
+    @app.post("/reset")
+    def reset() -> dict[str, bool]:
+        agent.reset()
+        return {"ok": True}
+
     @app.get("/recommend")
     def recommend(
         target_symbol: str, disease: str, question_type: QuestionType

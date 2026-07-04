@@ -17,13 +17,14 @@
     font-family: var(--cellar-font-body); font-size: var(--cellar-text-body); line-height: 1.6;
     -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
 
-  .layout { display: grid; grid-template-columns: 1fr; height: 100dvh;
-    min-height: 520px; max-width: 880px; margin: 0 auto; background: var(--cellar-surface);
+  .layout { display: grid; grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr);
+    height: 100dvh; min-height: 520px; max-width: 880px; margin: 0 auto; overflow: hidden;
+    background: var(--cellar-surface);
     border-left: 1px solid var(--cellar-border); border-right: 1px solid var(--cellar-border);
     box-shadow: 0 24px 80px -48px rgba(26,28,26,.28); }
   .layout.has-results { grid-template-columns: 1fr 1fr; max-width: 1500px; }
   .app { min-width: 0; height: 100%; min-height: 0; overflow: hidden;
-    display: grid; grid-template-rows: auto 1fr auto; background: var(--cellar-surface); }
+    display: grid; grid-template-rows: auto minmax(0, 1fr) auto; background: var(--cellar-surface); }
 
   /* --- Persistent results panel (only shown once recommendations arrive) --- */
   .results { display: none; }
@@ -34,7 +35,8 @@
   .results__title { font-family: var(--cellar-font-display); font-weight: 700; font-size: var(--cellar-text-h2);
     letter-spacing: -0.02em; color: var(--cellar-ink); }
   .results__sub { font-family: var(--cellar-font-mono); font-size: 11.5px; color: var(--cellar-ink-muted); margin-top: 3px; }
-  .results__body { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 11px; }
+  .results__body { flex: 1 1 0; min-height: 0; overflow-y: auto; padding: 0 15px 15px; display: flex; flex-direction: column; gap: 11px; }
+  .results__body > :first-child { margin-top: 15px; }
   .results__empty { color: var(--cellar-ink-faint); font-size: 13px; line-height: 1.65; text-align: center; margin: 34px 10px 0; }
   @media (max-width: 900px) {
     .layout.has-results { grid-template-columns: 1fr; grid-template-rows: 55dvh 45dvh; max-width: 880px; }
@@ -56,6 +58,13 @@
     font-variant-numeric: tabular-nums; }
   .chip::before { content: ""; width: 6px; height: 6px; border-radius: 50%;
     background: var(--cellar-conf-moderate); box-shadow: 0 0 0 3px var(--cellar-xylem-tint); }
+
+  .newbtn { font-family: var(--cellar-font-body); font-size: 12.5px; color: var(--cellar-ink-muted);
+    background: var(--cellar-surface); border: 1px solid var(--cellar-border-strong);
+    border-radius: var(--cellar-radius-pill); padding: 6px 13px; cursor: pointer;
+    transition: border-color .15s ease, color .15s ease; }
+  .newbtn:hover { color: var(--cellar-xylem); border-color: var(--cellar-xylem-border); }
+  .newbtn:focus-visible { outline: 2px solid var(--cellar-xylem); outline-offset: 2px; }
 
   /* --- Messages --- */
   .messages { overflow-y: auto; padding: 26px; display: flex; flex-direction: column; gap: 24px; }
@@ -155,12 +164,16 @@
 
   /* --- Recommendation cards --- */
   .rec-card { background: var(--cellar-surface); border: 1px solid var(--cellar-border);
-    border-radius: var(--cellar-radius-md); box-shadow: var(--cellar-shadow-card); overflow: hidden;
+    border-radius: var(--cellar-radius-md); box-shadow: var(--cellar-shadow-card);
     transition: box-shadow .18s ease; }
   .rec-card[open] { box-shadow: var(--cellar-shadow-pop); }
   .rec-card--rejected { opacity: .82; }
   .rec-head { display: flex; align-items: center; gap: 9px; flex-wrap: nowrap; cursor: pointer;
-    list-style: none; padding: 16px 15px; box-sizing: border-box; }
+    list-style: none; padding: 16px 15px; box-sizing: border-box;
+    position: sticky; top: 0; z-index: 2; background: var(--cellar-surface);
+    border-radius: var(--cellar-radius-md); }
+  .rec-card[open] .rec-head { border-radius: var(--cellar-radius-md) var(--cellar-radius-md) 0 0;
+    border-bottom: 1px solid var(--cellar-border); }
   .rec-head::-webkit-details-marker { display: none; }
   .rec-head:hover { background: var(--cellar-paper); }
   .rec-chevron { font-family: var(--cellar-font-mono); font-size: 12px; color: var(--cellar-ink-faint);
@@ -170,13 +183,20 @@
   .rec-name { font-family: var(--cellar-font-display); font-weight: 600; font-size: var(--cellar-text-body);
     letter-spacing: -0.01em; color: var(--cellar-ink); line-height: 1.4;
     flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .rec-body { padding: 0 15px 15px; }
+  .rec-body { padding: 14px 15px 15px; }
   .rec-chip { font-family: var(--cellar-font-mono); font-size: 11px; font-weight: 600; padding: 4px 10px;
     border-radius: var(--cellar-radius-sm); border: 1px solid transparent; white-space: nowrap; flex: none; }
   .rec-badge { font-family: var(--cellar-font-mono); font-size: 11px; font-weight: 600; padding: 4px 11px;
     border-radius: var(--cellar-radius-pill); white-space: nowrap; flex: none; }
   .rec-badge--yes { color: var(--cellar-xylem); background: var(--cellar-xylem-tint); border: 1px solid var(--cellar-xylem-border); }
   .rec-badge--no { color: var(--cellar-signal); background: var(--cellar-signal-tint); border: 1px solid #e8dcc0; }
+  .rec-why { background: var(--cellar-xylem-tint); border: 1px solid var(--cellar-xylem-border);
+    border-radius: var(--cellar-radius-md); padding: 11px 13px; margin-bottom: 13px; }
+  .rec-why__label { font-family: var(--cellar-font-mono); font-size: var(--cellar-text-label);
+    letter-spacing: .12em; text-transform: uppercase; color: var(--cellar-xylem); margin-bottom: 5px; }
+  .rec-why__text { font-size: 13px; color: var(--cellar-ink); line-height: 1.5; }
+  .rec-why__text a { color: var(--cellar-xylem); }
+  .rec-why__text > :first-child { margin-top: 0; } .rec-why__text > :last-child { margin-bottom: 0; }
   .rec-proscons { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   @media (max-width: 520px) { .rec-proscons { grid-template-columns: 1fr; } }
   .rec-pc__col { border: 1px solid var(--cellar-border); border-radius: var(--cellar-radius-md); padding: 11px 12px; }
@@ -206,6 +226,13 @@
   .rec-foot { margin-top: 13px; padding-top: 11px; border-top: 1px solid var(--cellar-border);
     font-size: 12.5px; color: var(--cellar-ink-muted); }
   .rec-foot a { color: var(--cellar-xylem); }
+  .rec-foot__label { font-family: var(--cellar-font-mono); font-size: var(--cellar-text-label);
+    letter-spacing: .12em; text-transform: uppercase; color: var(--cellar-ink-faint); margin-bottom: 4px; }
+  .rec-foot__val { font-size: 12.5px; color: var(--cellar-ink-muted); }
+  .rec-buy { flex: none; display: inline-flex; align-items: center; }
+  .rec-buy svg { display: block; }
+  .rec-buy--yes { color: var(--cellar-xylem); }
+  .rec-buy--no { color: var(--cellar-ink-faint); opacity: .7; }
 
   /* --- Composer --- */
   .composer { border-top: 1px solid var(--cellar-border); padding: 16px 26px; display: flex; gap: 11px;
@@ -251,6 +278,7 @@
           <div class="tagline">agentic model matchmaker</div>
         </div>
         <div class="spacer"></div>
+        <button class="newbtn" id="new-btn" type="button" title="Start a new investigation (clears the conversation and evidence)">New investigation</button>
         <span class="chip" id="model">connecting…</span>
       </div>
 
@@ -287,6 +315,8 @@
   const resultsBody = document.getElementById("results-body");
   const resultsSub = document.getElementById("results-sub");
   const layoutEl = document.querySelector(".layout");
+  let cardsByName = {};
+  function normName(s) { return String(s || "").toLowerCase().replace(/[^a-z0-9]/g, ""); }
 
   let activeES = null;
   let activeFinish = null;
@@ -529,8 +559,33 @@
     if (!ev.is_error && (ev.tool_name === "build_recommendations" || ev.tool_name === "recommend_models")) {
       let report = null;
       try { report = JSON.parse(ev.content); } catch (e) { report = null; }
-      if (report && Array.isArray(report.cards) && report.cards.length) showRecommendations(report);
+      if (report && Array.isArray(report.cards)) {
+        if (report.cards.length) showRecommendations(report);
+        else showNoRecommendations(report);
+      }
+    } else if (!ev.is_error && ev.tool_name === "annotate_recommendations") {
+      let data = null;
+      try { data = JSON.parse(ev.content); } catch (e) { data = null; }
+      if (data && Array.isArray(data.rationales)) {
+        data.rationales.forEach((r) => injectWhy(r.model, r.why));
+      }
     }
+  }
+
+  function injectWhy(model, why) {
+    const card = cardsByName[normName(model)];
+    if (!card || !why) return;
+    const body = card.querySelector(".rec-body");
+    if (!body) return;
+    if (!card._why) {
+      const block = el("div", "rec-why");
+      block.appendChild(el("div", "rec-why__label", "Why this model"));
+      const text = el("div", "rec-why__text md");
+      block.appendChild(text);
+      body.insertBefore(block, body.firstChild);
+      card._why = text;
+    }
+    card._why.innerHTML = renderMarkdown(why);
   }
 
   function activityFinish(a) {
@@ -585,6 +640,11 @@
     head.appendChild(tier);
     head.appendChild(el("span", "rec-badge " + (c.recommended ? "rec-badge--yes" : "rec-badge--no"),
       c.recommended ? "Recommended" : "Rejected"));
+    const buyable = !!(c.sourcing && c.sourcing.purchasable);
+    const buy = el("span", "rec-buy rec-buy--" + (buyable ? "yes" : "no"));
+    buy.title = buyable ? "Available to purchase" : "No direct purchase source found";
+    buy.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>';
+    head.appendChild(buy);
     card.appendChild(head);
 
     const body = el("div", "rec-body");
@@ -617,33 +677,72 @@
     if (ctx) body.appendChild(ctx);
 
     const src = c.sourcing || {};
-    if (src.supplier_or_cro || src.catalog_url) {
-      const foot = el("div", "rec-foot");
-      foot.appendChild(el("span", null, "Source: " + (src.supplier_or_cro || "—") + " "));
+    const foot = el("div", "rec-foot");
+    foot.appendChild(el("div", "rec-foot__label", "Where to buy"));
+    const val = el("div", "rec-foot__val");
+    if (src.purchasable && (src.supplier_or_cro || src.catalog_url)) {
       if (src.catalog_url) {
-        const a = el("a", null, "catalog ↗");
+        const a = el("a", null, (src.supplier_or_cro || "Purchase") + " ↗");
         a.href = src.catalog_url; a.target = "_blank"; a.rel = "noopener";
-        foot.appendChild(a);
+        val.appendChild(a);
+      } else {
+        val.textContent = src.supplier_or_cro;
       }
-      body.appendChild(foot);
+    } else if (src.catalog_url) {
+      val.appendChild(document.createTextNode("Not sold through a standard catalog — "));
+      const a = el("a", null, "see record ↗");
+      a.href = src.catalog_url; a.target = "_blank"; a.rel = "noopener";
+      val.appendChild(a);
+    } else {
+      val.textContent = "No direct purchase source found.";
     }
+    foot.appendChild(val);
+    body.appendChild(foot);
     card.appendChild(body);
     return card;
   }
 
-  function showRecommendations(report) {
+  function _resultsContext(report) {
     const q = report.query || {};
-    resultsSub.textContent = [q.target_symbol, q.disease, q.question_type].filter(Boolean).join(" · ")
-      || (report.verdict || "");
+    return [q.target_symbol, q.disease, q.question_type].filter(Boolean).join(" · ");
+  }
+
+  function showRecommendations(report) {
+    resultsSub.textContent = _resultsContext(report) || (report.verdict || "");
     resultsBody.replaceChildren();
-    report.cards.forEach((c) => resultsBody.appendChild(recCard(c)));
+    cardsByName = {};
+    report.cards.forEach((c) => {
+      const card = recCard(c);
+      cardsByName[normName(c.model_name)] = card;
+      resultsBody.appendChild(card);
+    });
     resultsBody.scrollTop = 0;
     layoutEl.classList.add("has-results");
+  }
+
+  function showNoRecommendations(report) {
+    resultsSub.textContent = _resultsContext(report) || "No models ranked";
+    resultsBody.replaceChildren();
+    const note = el("div", "results__empty");
+    note.textContent = report.verdict || "No candidate models were ranked for this question.";
+    resultsBody.appendChild(note);
+    resultsBody.scrollTop = 0;
+    layoutEl.classList.add("has-results");
+  }
+
+  function resetResultsPanel() {
+    if (!layoutEl.classList.contains("has-results")) return;
+    resultsSub.textContent = "Ranked models appear here.";
+    resultsBody.replaceChildren();
+    const note = el("div", "results__empty");
+    note.textContent = "Ranked models for this question will appear here.";
+    resultsBody.appendChild(note);
   }
 
   function send(text) {
     if (!text.trim()) return;
     clearEmptyState();
+    resetResultsPanel();
     input.value = "";
     setGenerating(true);
     addUser(text);
@@ -681,11 +780,24 @@
     activeFinish = finish;
   }
 
+  function newInvestigation() {
+    if (activeES) stopGeneration();
+    fetch("/reset", { method: "POST" }).catch(() => {});
+    messagesEl.replaceChildren();
+    layoutEl.classList.remove("has-results");
+    resultsBody.replaceChildren();
+    resultsSub.textContent = "Ranked models appear here.";
+    renderEmptyState();
+    input.value = "";
+    input.focus();
+  }
+
   form.addEventListener("submit", (e) => {
     e.preventDefault();
     if (activeES) { stopGeneration(); return; }
     send(input.value);
   });
+  document.getElementById("new-btn").addEventListener("click", newInvestigation);
   renderEmptyState();
   input.focus();
 </script>

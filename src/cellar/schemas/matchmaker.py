@@ -46,6 +46,7 @@ class Sourcing(BaseModel):
 
     supplier_or_cro: str = ""
     catalog_url: str = ""
+    purchasable: bool = False
 
 
 class PathwayBlock(BaseModel):

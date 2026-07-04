@@ -38,6 +38,14 @@ class StreamingAgent:
             if hasattr(tool, "evidence_store"):
                 tool.evidence_store = self._evidence
 
+    def reset(self) -> None:
+        self._transcript = []
+        self._evidence = EvidenceStore()
+        for tool in self._tools_by_name.values():
+            if hasattr(tool, "evidence_store"):
+                tool.evidence_store = self._evidence
+        bind_store(self._evidence)
+
     def send(self, user_message: str) -> Iterator[StreamEvent]:
         bind_store(self._evidence)
         self._transcript.append({"role": "user", "content": user_message})

@@ -196,17 +196,6 @@ def _con(key: str, label: str, source: str, url: str | None) -> ScoredDimension:
     return ScoredDimension(key=key, label=label, value=0.0, strength=Strength.WEAK, source=source, source_url=url)
 
 
-def _mutation_rec(store: EvidenceStore, symbol_norm: str, model_norm: str) -> dict:
-    for record in _dict_records(store, "cell_model_gene_mutations"):
-        if (
-            _norm(record.input.get("model", "")) == model_norm
-            and _norm(record.input.get("gene_symbol", "")) == symbol_norm
-            and record.data.get("found")
-        ):
-            return record.data
-    return {}
-
-
 def _evidence_rows(
     store: EvidenceStore, symbol: str, name: str
 ) -> tuple[list[ScoredDimension], list[ScoredDimension]]:
@@ -220,21 +209,19 @@ def _evidence_rows(
         f"https://cellmodelpassports.sanger.ac.uk/passports/{facts['sidm_id']}" if facts.get("sidm_id") else None
     )
 
-    mut = _mutation_rec(store, symbol_norm, norm)
-    if mut:
-        mutations = [m for m in (mut.get("mutations") or []) if isinstance(m, dict)]
+    for record in _dict_records(store, "cell_model_gene_mutations"):
+        if _norm(record.input.get("model", "")) != norm or not record.data.get("found"):
+            continue
+        gene = str(record.data.get("gene_symbol") or record.input.get("gene_symbol") or "").upper()
+        mutations = [m for m in (record.data.get("mutations") or []) if isinstance(m, dict)]
         driver = next((m for m in mutations if m.get("cancer_driver")), None)
         if driver:
             vaf = driver.get("vaf")
             vaf_txt = f", VAF {vaf:.2f}" if isinstance(vaf, (int, float)) else ""
             detail = " ".join(x for x in (driver.get("protein"), driver.get("effect")) if x)
-            pros.append(_pro("mutation", f"{symbol} {detail}{vaf_txt} — confirmed cancer driver", _CMP, passport))
-        elif mutations:
-            m0 = mutations[0]
-            detail = " ".join(x for x in (m0.get("protein"), m0.get("effect")) if x)
-            cons.append(_con("mutation", f"Carries {symbol} {detail} — not a known driver", _CMP, passport))
-        else:
-            cons.append(_con("mutation", f"No {symbol} alteration detected in this model", _CMP, passport))
+            pros.append(_pro(f"mutation:{gene}", f"{gene} {detail}{vaf_txt} — confirmed cancer driver", _CMP, passport))
+        elif _norm(gene) != symbol_norm:
+            cons.append(_con(f"mutation:{gene}", f"Wild-type {gene} — lacks this disease driver", _CMP, passport))
 
     dep = _rec_for(store, "gene_dependency", "model", norm)
     if dep:
@@ -272,6 +259,30 @@ def _evidence_rows(
     return pros, cons
 
 
+def _is_purchasable(store: EvidenceStore, name: str) -> bool:
+    prov = _rec_for(store, "cell_line_provenance", "name", _norm(name))
+    listings = prov.get("commercial_listings") or prov.get("catalog") or {}
+    return bool(listings)
+
+
+def _display_name(store: EvidenceStore, name: str) -> str | None:
+    norm = _norm(name)
+    for tool in ("find_cell_model", "cell_line_provenance", "cell_model_gene_mutations", "gene_dependency"):
+        for record in _dict_records(store, tool):
+            data = record.data
+            matches = (
+                _norm(record.input.get("name", "")) == norm
+                or _norm(record.input.get("model", "")) == norm
+                or _norm(data.get("sidm_id", "")) == norm
+                or _norm(data.get("model_id", "")) == norm
+            )
+            if matches:
+                names = data.get("names") or data.get("model_names")
+                if names:
+                    return str(names[0])
+    return None
+
+
 def aggregate_recommendations(
     store: EvidenceStore, query: MatchmakerQuery
 ) -> RecommendationReport:
@@ -280,8 +291,13 @@ def aggregate_recommendations(
         return _no_models_report(query)
     report = run_matchmaker(query, panel=panel)
     for card in report.cards:
-        pros, cons = _evidence_rows(store, query.target_symbol, card.model_name)
+        original = card.model_name
+        pros, cons = _evidence_rows(store, query.target_symbol, original)
         if pros or cons:
             card.reasons = pros
             card.watch_outs = cons
+        card.sourcing.purchasable = _is_purchasable(store, original)
+        display = _display_name(store, original)
+        if display:
+            card.model_name = display
     return report
