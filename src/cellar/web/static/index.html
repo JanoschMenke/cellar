@@ -17,25 +17,28 @@
     font-family: var(--cellar-font-body); font-size: var(--cellar-text-body); line-height: 1.6;
     -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
 
-  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 440px; height: 100dvh;
-    min-height: 520px; max-width: 1400px; margin: 0 auto; background: var(--cellar-surface);
+  .layout { display: grid; grid-template-columns: 1fr; height: 100dvh;
+    min-height: 520px; max-width: 880px; margin: 0 auto; background: var(--cellar-surface);
     border-left: 1px solid var(--cellar-border); border-right: 1px solid var(--cellar-border);
     box-shadow: 0 24px 80px -48px rgba(26,28,26,.28); }
-  .app { min-width: 0; height: 100%; min-height: 0;
+  .layout.has-results { grid-template-columns: 1fr 1fr; max-width: 1500px; }
+  .app { min-width: 0; height: 100%; min-height: 0; overflow: hidden;
     display: grid; grid-template-rows: auto 1fr auto; background: var(--cellar-surface); }
 
-  /* --- Persistent results panel --- */
-  .results { min-width: 0; height: 100%; min-height: 0; display: flex; flex-direction: column;
+  /* --- Persistent results panel (only shown once recommendations arrive) --- */
+  .results { display: none; }
+  .layout.has-results .results { min-width: 0; height: 100%; min-height: 0; overflow: hidden;
+    display: flex; flex-direction: column;
     background: var(--cellar-paper); border-left: 1px solid var(--cellar-border); }
-  .results__head { padding: 16px 20px; border-bottom: 1px solid var(--cellar-border); background: var(--cellar-surface); }
+  .results__head { flex: none; padding: 16px 20px; border-bottom: 1px solid var(--cellar-border); background: var(--cellar-surface); }
   .results__title { font-family: var(--cellar-font-display); font-weight: 700; font-size: var(--cellar-text-h2);
     letter-spacing: -0.02em; color: var(--cellar-ink); }
   .results__sub { font-family: var(--cellar-font-mono); font-size: 11.5px; color: var(--cellar-ink-muted); margin-top: 3px; }
-  .results__body { flex: 1; min-height: 0; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 11px; }
+  .results__body { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 11px; }
   .results__empty { color: var(--cellar-ink-faint); font-size: 13px; line-height: 1.65; text-align: center; margin: 34px 10px 0; }
   @media (max-width: 900px) {
-    .layout { grid-template-columns: 1fr; grid-template-rows: 60dvh 40dvh; max-width: none; }
-    .results { border-left: none; border-top: 1px solid var(--cellar-border); }
+    .layout.has-results { grid-template-columns: 1fr; grid-template-rows: 55dvh 45dvh; max-width: 880px; }
+    .layout.has-results .results { border-left: none; border-top: 1px solid var(--cellar-border); }
   }
 
   /* --- Header --- */
@@ -282,6 +285,7 @@
   const modelChip = document.getElementById("model");
   const resultsBody = document.getElementById("results-body");
   const resultsSub = document.getElementById("results-sub");
+  const layoutEl = document.querySelector(".layout");
 
   let activeES = null;
   let activeFinish = null;
@@ -586,6 +590,7 @@
     resultsBody.replaceChildren();
     report.cards.forEach((c) => resultsBody.appendChild(recCard(c)));
     resultsBody.scrollTop = 0;
+    layoutEl.classList.add("has-results");
   }
 
   function send(text) {
