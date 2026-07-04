@@ -44,4 +44,9 @@ class GeneDependencyTool(Tool):
                 result = dependency.gene_dependency_summary(gene_symbol)
         except Exception as error:
             return ToolResult(content=f"CRISPR dependency lookup failed: {error}", is_error=True)
+        if isinstance(result, dict):
+            result["reference"] = f"https://depmap.org/portal/gene/{gene_symbol}"
+            sidm = result.get("model_id")
+            if sidm:
+                result["model_reference"] = f"https://cellmodelpassports.sanger.ac.uk/passports/{sidm}"
         return ToolResult(content=json.dumps(result))

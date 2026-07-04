@@ -128,28 +128,30 @@
   .md tbody tr:nth-child(even) td { background: rgba(247,246,242,.55); }
 
   /* --- Tool timeline --- */
-  .tool { border: 1px solid var(--cellar-border); border-radius: var(--cellar-radius-md);
-    background: var(--cellar-surface); padding: 12px 14px; margin: 13px 0; box-shadow: var(--cellar-shadow-card);
-    transition: border-color .2s ease; }
-  .tool.running { border-color: var(--cellar-xylem-border); }
-  .tool__head { display: flex; align-items: center; gap: 10px; }
-  .tool__dot { width: 9px; height: 9px; border-radius: 50%; flex: none; background: var(--cellar-border-strong); }
-  .tool.running .tool__dot { background: var(--cellar-xylem); animation: pulse 1.15s infinite; }
-  .tool.done .tool__dot { background: var(--cellar-conf-strong); }
-  .tool.error .tool__dot { background: var(--cellar-signal); }
+  /* --- Tool activity (one consolidated, human-readable panel per turn) --- */
   @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(52,87,59,.4); }
     70% { box-shadow: 0 0 0 6px rgba(52,87,59,0); } 100% { box-shadow: 0 0 0 0 rgba(52,87,59,0); } }
-  .tool__name { font-family: var(--cellar-font-mono); font-size: 12.5px; font-weight: 600; color: var(--cellar-ink); }
-  .tool__status { margin-left: auto; font-family: var(--cellar-font-mono); font-size: 11px;
-    letter-spacing: .04em; color: var(--cellar-ink-muted); }
-  .tool.running .tool__status { color: var(--cellar-xylem); }
-  .tool.done .tool__status { color: var(--cellar-conf-strong); }
-  .tool.error .tool__status { color: var(--cellar-signal); }
-  .tool__result { margin-top: 9px; padding-left: 19px; font-size: 12.5px; color: var(--cellar-ink-muted);
-    font-family: var(--cellar-font-mono); word-break: break-word; white-space: pre-wrap;
-    font-variant-numeric: tabular-nums; }
-  .tool.error .tool__result { color: var(--cellar-signal); }
-  .tool__result:empty { display: none; }
+  .activity { border: 1px solid var(--cellar-border); border-radius: var(--cellar-radius-md);
+    background: var(--cellar-surface); box-shadow: var(--cellar-shadow-card); margin: 13px 0; }
+  .activity__head { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 10px;
+    padding: 11px 14px; }
+  .activity__head::-webkit-details-marker { display: none; }
+  .activity__dot { width: 9px; height: 9px; border-radius: 50%; flex: none; background: var(--cellar-xylem);
+    animation: pulse 1.15s infinite; }
+  .activity.is-done .activity__dot { background: var(--cellar-conf-strong); animation: none; }
+  .activity__title { font-size: 12.5px; color: var(--cellar-ink); }
+  .activity__count { margin-left: auto; font-family: var(--cellar-font-mono); font-size: 11px; color: var(--cellar-ink-faint); }
+  .activity__chev { color: var(--cellar-ink-faint); font-size: 10px; transition: transform .15s ease; }
+  .activity[open] .activity__chev { transform: rotate(90deg); }
+  .activity__steps { padding: 2px 14px 12px 33px; display: flex; flex-direction: column; gap: 8px; }
+  .step { display: flex; align-items: center; gap: 9px; font-size: 12px; }
+  .step__dot { width: 6px; height: 6px; border-radius: 50%; flex: none; background: var(--cellar-border-strong); }
+  .step.running .step__dot { background: var(--cellar-xylem); animation: pulse 1.15s infinite; }
+  .step.done .step__dot { background: var(--cellar-conf-strong); }
+  .step.error .step__dot { background: var(--cellar-signal); }
+  .step__label { color: var(--cellar-ink-muted); }
+  .step__sum { margin-left: auto; font-family: var(--cellar-font-mono); font-size: 11px; color: var(--cellar-ink-faint); }
+  .step.error .step__sum { color: var(--cellar-signal); }
 
   /* --- Recommendation cards --- */
   .rec-card { background: var(--cellar-surface); border: 1px solid var(--cellar-border);
@@ -169,35 +171,34 @@
     letter-spacing: -0.01em; color: var(--cellar-ink); line-height: 1.4;
     flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .rec-body { padding: 0 15px 15px; }
-  .rec-card[open] .rec-body { max-height: min(780px, 74dvh); overflow-y: auto; }
   .rec-chip { font-family: var(--cellar-font-mono); font-size: 11px; font-weight: 600; padding: 4px 10px;
     border-radius: var(--cellar-radius-sm); border: 1px solid transparent; white-space: nowrap; flex: none; }
   .rec-badge { font-family: var(--cellar-font-mono); font-size: 11px; font-weight: 600; padding: 4px 11px;
     border-radius: var(--cellar-radius-pill); white-space: nowrap; flex: none; }
   .rec-badge--yes { color: var(--cellar-xylem); background: var(--cellar-xylem-tint); border: 1px solid var(--cellar-xylem-border); }
   .rec-badge--no { color: var(--cellar-signal); background: var(--cellar-signal-tint); border: 1px solid #e8dcc0; }
-  .rec-conf { font-family: var(--cellar-font-mono); font-size: 11px; color: var(--cellar-ink-faint);
-    text-transform: uppercase; letter-spacing: .08em; }
-  .rec-headline { color: var(--cellar-ink-muted); font-size: 13px; margin: 10px 0 13px; }
-  .rec-scores { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px 18px; }
-  .rec-score__top { display: flex; justify-content: space-between; font-family: var(--cellar-font-mono);
-    font-size: var(--cellar-text-label); letter-spacing: .05em; text-transform: uppercase;
-    color: var(--cellar-ink-faint); font-variant-numeric: tabular-nums; }
-  .rec-score__val { color: var(--cellar-ink); }
-  .rec-track { height: 6px; border-radius: 3px; background: var(--cellar-paper); margin-top: 5px; overflow: hidden; }
-  .rec-fill { height: 100%; border-radius: 3px; background: var(--cellar-xylem); transition: width .5s ease; }
-  .rec-fill--strong { background: var(--cellar-conf-strong); }
-  .rec-fill--moderate { background: var(--cellar-conf-moderate); }
-  .rec-fill--weak { background: var(--cellar-conf-weak); }
+  .rec-proscons { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 520px) { .rec-proscons { grid-template-columns: 1fr; } }
+  .rec-pc__col { border: 1px solid var(--cellar-border); border-radius: var(--cellar-radius-md); padding: 11px 12px; }
+  .rec-pc__col--pro { background: var(--cellar-xylem-tint); border-color: var(--cellar-xylem-border); }
+  .rec-pc__col--con { background: var(--cellar-signal-tint); border-color: #e8dcc0; }
+  .rec-pc__head { font-family: var(--cellar-font-mono); font-size: var(--cellar-text-label);
+    letter-spacing: .12em; text-transform: uppercase; margin-bottom: 9px; }
+  .rec-pc__col--pro .rec-pc__head { color: var(--cellar-xylem); }
+  .rec-pc__col--con .rec-pc__head { color: var(--cellar-signal); }
+  .rec-pc__none { font-size: 12.5px; color: var(--cellar-ink-faint); }
+  .rec-pc__row { display: flex; gap: 8px; align-items: flex-start; margin: 9px 0; }
+  .rec-pc__mark { font-family: var(--cellar-font-mono); line-height: 1.5; flex: none; }
+  .rec-pc__mark--pro { color: var(--cellar-xylem); }
+  .rec-pc__mark--con { color: var(--cellar-signal); }
+  .rec-pc__body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .rec-pc__text { font-size: 12.5px; color: var(--cellar-ink); line-height: 1.4; }
+  .rec-pc__src { font-size: 11px; font-family: var(--cellar-font-mono); color: var(--cellar-ink-faint); }
+  .rec-pc__src a { color: var(--cellar-ink-muted); text-decoration: underline;
+    text-decoration-color: var(--cellar-border-strong); text-underline-offset: 2px; }
   .rec-section { margin-top: 13px; }
   .rec-section__label { font-family: var(--cellar-font-mono); font-size: var(--cellar-text-label);
     letter-spacing: .12em; text-transform: uppercase; color: var(--cellar-ink-faint); margin-bottom: 6px; }
-  .rec-dim { font-size: 13px; margin: 2px 0; color: var(--cellar-ink); }
-  .rec-dim__mark { font-family: var(--cellar-font-mono); }
-  .rec-dim--good .rec-dim__mark { color: var(--cellar-conf-strong); }
-  .rec-dim--warn .rec-dim__mark { color: var(--cellar-signal); }
-  .rec-dim__val { font-family: var(--cellar-font-mono); font-size: 11.5px; color: var(--cellar-ink-muted);
-    font-variant-numeric: tabular-nums; }
   .rec-note { font-size: 12.5px; color: var(--cellar-ink-muted); margin: 3px 0; padding-left: 15px; position: relative; }
   .rec-note::before { content: "•"; position: absolute; left: 3px; color: var(--cellar-sage); }
   .rec-action { font-size: 12.5px; color: var(--cellar-ink); margin: 3px 0; padding-left: 17px; position: relative; }
@@ -230,9 +231,8 @@
 
   @media (max-width: 560px) { .topbar, .messages, .composer { padding-left: 18px; padding-right: 18px; } }
   @media (prefers-reduced-motion: reduce) {
-    .caret, .tool.running .tool__dot { animation: none; }
+    .caret, .activity__dot, .step.running .step__dot { animation: none; }
     .user, .assistant, .empty { animation: none; }
-    .rec-fill { transition: none; }
   }
 </style>
 </head>
@@ -447,72 +447,118 @@
     a.cursorText.innerHTML = renderMarkdown(a.cursorText._raw);
   }
 
-  function addToolCard(a, name) {
-    const card = el("div", "tool running");
-    const head = el("div", "tool__head");
-    head.appendChild(el("span", "tool__dot"));
-    head.appendChild(el("span", "tool__name", name || "tool"));
-    const status = el("span", "tool__status", "running…");
-    head.appendChild(status);
-    card.appendChild(head);
-    const res = el("div", "tool__result");
-    card.appendChild(res);
-    card._status = status;
-    card._res = res;
-    a.body.insertBefore(card, a.caret);
-    a.cursorText = null;
-    return card;
+  const TOOL_LABELS = {
+    target_disease_evidence: "Checking target–disease evidence",
+    protein_evidence: "Checking protein evidence",
+    protein_atlas_profile: "Reading the protein atlas",
+    isoform_risk: "Checking isoform risk",
+    pathway_relations: "Mapping pathway relations",
+    literature_search: "Searching the literature",
+    find_cell_model: "Finding the cell model",
+    cell_line_provenance: "Checking cell-line provenance",
+    gene_dependency: "Checking CRISPR dependency",
+    cell_model_gene_mutations: "Checking mutations",
+    build_recommendations: "Building recommendations",
+    recommend_models: "Building recommendations",
+  };
+  function toolLabel(name) {
+    return TOOL_LABELS[name] || (name || "tool").replace(/_/g, " ");
   }
 
-  function completeToolCard(card, ev) {
-    card.classList.remove("running");
-    card.classList.add(ev.is_error ? "error" : "done");
-    card._status.textContent = ev.is_error ? "error" : "done";
+  function toolSummary(name, ev) {
+    if (ev.is_error) return "failed";
+    let d = null;
+    try { d = JSON.parse(ev.content); } catch (e) { d = null; }
+    if (!d || typeof d !== "object") return "done";
+    if (d.found === false) return "not found";
+    if (name === "find_cell_model" && d.sidm_id) return d.sidm_id;
+    if (name === "cell_model_gene_mutations" && Array.isArray(d.mutations))
+      return d.mutations.length + " mutation" + (d.mutations.length === 1 ? "" : "s");
+    if ((name === "build_recommendations" || name === "recommend_models") && Array.isArray(d.cards))
+      return d.cards.length + " model" + (d.cards.length === 1 ? "" : "s") + " ranked";
+    if (name === "gene_dependency" && "is_dependency" in d) return d.is_dependency ? "is a dependency" : "not a dependency";
+    if (name === "protein_evidence" && d.synthesis && d.synthesis.confidence) return d.synthesis.confidence + " protein evidence";
+    if (name === "isoform_risk" && d.isoform_specificity_risk) return d.isoform_specificity_risk + " risk";
+    if (name === "pathway_relations" && d.literature_relations) return Object.keys(d.literature_relations).length + " relations";
+    if (name === "literature_search" && Array.isArray(d.papers)) return d.papers.length + " paper" + (d.papers.length === 1 ? "" : "s");
+    if (name === "target_disease_evidence" && typeof d.overall_score === "number") return "assoc " + d.overall_score.toFixed(2);
+    return "done";
+  }
 
-    if (!ev.is_error && ev.tool_name === "recommend_models") {
+  function ensureActivity(a) {
+    if (a.activity) return a.activity;
+    const box = el("details", "activity");
+    box.open = true;
+    const head = el("summary", "activity__head");
+    head.appendChild(el("span", "activity__dot"));
+    const title = el("span", "activity__title", "Working…");
+    head.appendChild(title);
+    const count = el("span", "activity__count", "");
+    head.appendChild(count);
+    head.appendChild(el("span", "activity__chev", "▸"));
+    box.appendChild(head);
+    const steps = el("div", "activity__steps");
+    box.appendChild(steps);
+    a.body.insertBefore(box, a.caret);
+    a.cursorText = null;
+    a.activity = { box, title, count, steps, n: 0, done: false };
+    return a.activity;
+  }
+
+  function activityStep(a, name) {
+    const act = ensureActivity(a);
+    act.n += 1;
+    act.count.textContent = act.n;
+    act.title.textContent = toolLabel(name) + "…";
+    const row = el("div", "step running");
+    row.appendChild(el("span", "step__dot"));
+    row.appendChild(el("span", "step__label", toolLabel(name)));
+    const sum = el("span", "step__sum", "…");
+    row.appendChild(sum);
+    act.steps.appendChild(row);
+    row._sum = sum;
+    return row;
+  }
+
+  function activityDone(a, row, ev) {
+    if (row) {
+      row.classList.remove("running");
+      row.classList.add(ev.is_error ? "error" : "done");
+      row._sum.textContent = toolSummary(ev.tool_name, ev);
+    }
+    if (!ev.is_error && (ev.tool_name === "build_recommendations" || ev.tool_name === "recommend_models")) {
       let report = null;
       try { report = JSON.parse(ev.content); } catch (e) { report = null; }
-      if (report && Array.isArray(report.cards)) {
-        const n = report.cards.length;
-        card._res.textContent = (report.verdict || "") + "  ·  " + n + " model" + (n === 1 ? "" : "s") + " ranked → see panel";
-        showRecommendations(report);
-        return;
-      }
+      if (report && Array.isArray(report.cards) && report.cards.length) showRecommendations(report);
     }
+  }
 
-    let line = "";
-    if (ev.tool_input && Object.keys(ev.tool_input).length) {
-      line += Object.entries(ev.tool_input).map(([k, v]) => k + "=" + v).join("  ") + "  →  ";
-    }
-    line += ev.content || "";
-    card._res.textContent = line;
+  function activityFinish(a) {
+    const act = a.activity;
+    if (!act || act.done) return;
+    act.done = true;
+    act.box.classList.add("is-done");
+    act.box.open = false;
+    act.title.textContent = "Gathered evidence from " + act.n + " source" + (act.n === 1 ? "" : "s");
   }
 
   const TIER_TOKEN = { "2d_line": "cellline", organoid: "organoid", coculture: "pdx", in_vivo: "mouse" };
 
-  function strengthClass(v) {
-    return v >= 0.7 ? "strong" : v >= 0.45 ? "moderate" : "weak";
-  }
-
-  function scoreBar(label, value) {
-    const box = el("div", "rec-score");
-    const top = el("div", "rec-score__top");
-    top.appendChild(el("span", null, label));
-    top.appendChild(el("span", "rec-score__val", value == null ? "—" : value.toFixed(2)));
-    box.appendChild(top);
-    const track = el("div", "rec-track");
-    const fill = el("div", "rec-fill rec-fill--" + strengthClass(value || 0));
-    fill.style.width = Math.round((value || 0) * 100) + "%";
-    track.appendChild(fill);
-    box.appendChild(track);
-    return box;
-  }
-
-  function dimRow(d, kind) {
-    const row = el("div", "rec-dim rec-dim--" + (kind === "good" ? "good" : "warn"));
-    row.appendChild(el("span", "rec-dim__mark", kind === "good" ? "✓ " : "△ "));
-    row.appendChild(el("span", null, d.label + " "));
-    row.appendChild(el("span", "rec-dim__val", "(" + d.value.toFixed(2) + ")"));
+  function pcRow(d, kind) {
+    const row = el("div", "rec-pc__row");
+    row.appendChild(el("span", "rec-pc__mark rec-pc__mark--" + kind, kind === "pro" ? "✓" : "✗"));
+    const body = el("div", "rec-pc__body");
+    body.appendChild(el("span", "rec-pc__text", d.label));
+    const src = el("span", "rec-pc__src");
+    if (d.source_url) {
+      const a = el("a", null, d.source + " ↗");
+      a.href = d.source_url; a.target = "_blank"; a.rel = "noopener";
+      src.appendChild(a);
+    } else if (d.source) {
+      src.appendChild(document.createTextNode(d.source));
+    }
+    body.appendChild(src);
+    row.appendChild(body);
     return row;
   }
 
@@ -542,19 +588,21 @@
     card.appendChild(head);
 
     const body = el("div", "rec-body");
-    body.appendChild(el("div", "rec-headline", c.headline));
 
-    const scores = el("div", "rec-scores");
-    scores.appendChild(scoreBar("Overall", c.scores.overall));
-    scores.appendChild(scoreBar("Science", c.scores.science));
-    scores.appendChild(scoreBar("Technical", c.scores.technical));
-    if (c.scores.context != null) scores.appendChild(scoreBar("MoA context", c.scores.context));
-    body.appendChild(scores);
-
-    const why = section("Why this model", (c.reasons || []).map((d) => dimRow(d, "good")));
-    if (why) body.appendChild(why);
-    const watch = section("Watch-outs", (c.watch_outs || []).map((d) => dimRow(d, "warn")));
-    if (watch) body.appendChild(watch);
+    const grid = el("div", "rec-proscons");
+    const proCol = el("div", "rec-pc__col rec-pc__col--pro");
+    proCol.appendChild(el("div", "rec-pc__head", "Pros"));
+    const pros = c.reasons || [];
+    if (pros.length) pros.forEach((d) => proCol.appendChild(pcRow(d, "pro")));
+    else proCol.appendChild(el("div", "rec-pc__none", "None noted"));
+    const conCol = el("div", "rec-pc__col rec-pc__col--con");
+    conCol.appendChild(el("div", "rec-pc__head", "Cons"));
+    const cons = c.watch_outs || [];
+    if (cons.length) cons.forEach((d) => conCol.appendChild(pcRow(d, "con")));
+    else conCol.appendChild(el("div", "rec-pc__none", "None noted"));
+    grid.appendChild(proCol);
+    grid.appendChild(conCol);
+    body.appendChild(grid);
 
     const actions = (c.mechanism && c.mechanism.actions) || [];
     const actNodes = actions.map((a) => {
@@ -609,11 +657,8 @@
       const ev = JSON.parse(e.data);
       const stick = isNearBottom();
       if (ev.kind === "text") { appendText(a, ev.text); }
-      else if (ev.kind === "tool_use") { openTools.push(addToolCard(a, ev.tool_name)); }
-      else if (ev.kind === "tool_result") {
-        const card = openTools.shift() || addToolCard(a, ev.tool_name);
-        completeToolCard(card, ev);
-      }
+      else if (ev.kind === "tool_use") { openTools.push(activityStep(a, ev.tool_name)); }
+      else if (ev.kind === "tool_result") { activityDone(a, openTools.shift(), ev); }
       else if (ev.kind === "error") { appendText(a, "\n[error] " + (ev.content || "")); }
       else if (ev.kind === "done") { finish(); }
       if (stick) scrollDown();
@@ -625,6 +670,7 @@
       if (finished) return;
       finished = true;
       es.close();
+      activityFinish(a);
       a.caret.remove();
       if (stopped) a.body.appendChild(el("div", "stopped", "■ stopped"));
       activeES = null;

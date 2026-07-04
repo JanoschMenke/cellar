@@ -1,7 +1,7 @@
 from collections.abc import Callable
 from typing import TypeVar
 
-from cellar.services import isoforms, mechanism, pathway, proteomics, retrieval
+from cellar.services import derivation, isoforms, mechanism, pathway, proteomics, retrieval
 from cellar.tools.scoring import rank
 
 from cellar.schemas.matchmaker import (
@@ -29,21 +29,15 @@ def _safe(fn: Callable[[], _T], default: _T) -> _T:
 
 
 def _relations_for(target_symbol: str) -> dict[str, dict[str, object]]:
-    if target_symbol.upper() == "ZDHHC20":
-        return pathway.ZDHHC20_RELATIONS
-    return {}
+    return derivation.relations_for(target_symbol)
 
 
 def _moa_context_for(target_symbol: str, disease: str) -> dict[str, object]:
-    if target_symbol.upper() == "ZDHHC20":
-        return mechanism.ZDHHC20_MOA_CONTEXT
-    return {"target": target_symbol, "disease": disease, "requirements": []}
+    return derivation.moa_context_for(target_symbol, disease)
 
 
-def _pride_for(target_symbol: str) -> dict[str, object]:
-    if target_symbol.upper() == "ZDHHC20":
-        return proteomics.ZDHHC20_PRIDE
-    return {"n_projects": 0, "tier": "unknown", "uniprot": None}
+def _pride_for(target_symbol: str) -> dict[str, object] | None:
+    return derivation.pride_for(target_symbol)
 
 
 def _seed_to_candidate(seed: SeedModel) -> ModelCandidate:
@@ -70,7 +64,7 @@ def _build_facts(
     isoform_summary: dict[str, object],
     proteomics_summary: dict[str, object],
     protein_evidence: dict[str, object],
-    pride: dict[str, object],
+    pride: dict[str, object] | None,
     partners: list[dict[str, object]],
 ) -> FactsSummary:
     profile = (
@@ -100,7 +94,7 @@ def _build_facts(
         protein_present=float(protein_evidence.get("protein_present", 0.0) or 0.0),
         protein_confidence=str(protein_evidence.get("confidence", "")),
         ms_absence_guard_applied=bool(protein_evidence.get("ms_absence_guard_applied")),
-        pride_n_projects=int(pride.get("n_projects", 0) or 0),
+        pride_n_projects=int((pride or {}).get("n_projects", 0) or 0),
         proteomics_modality_note=str(modalities.get("note", "")),
         string_top_partners=[str(p.get("partner")) for p in partners[:5]],
     )
@@ -197,7 +191,7 @@ def run_matchmaker(
         mechanism_by_model[candidate.name] = moa
 
     ranked = rank(candidates, question)
-    target_context = {"symbol": symbol}
+    target_context = {"symbol": symbol, "target_id": target_id or ""}
     cards = [
         build_card(
             rank_index,

@@ -1,9 +1,19 @@
+import json
+
 from anthropic import NOT_GIVEN
 from anthropic.types import Message, MessageParam
 
 from cellar.config import Settings
+from cellar.services.evidence_store import EvidenceStore, bind_store
 from cellar.services.llm import LlmClient
 from cellar.tools.base import Tool
+
+
+def _parse_json(content: str) -> object | None:
+    try:
+        return json.loads(content)
+    except (ValueError, TypeError):
+        return content
 
 
 class ConsoleAgent:
@@ -21,8 +31,13 @@ class ConsoleAgent:
         self._system = system or NOT_GIVEN
         self._verbose = verbose
         self._transcript: list[MessageParam] = []
+        self._evidence = EvidenceStore()
+        for tool in tools:
+            if hasattr(tool, "evidence_store"):
+                tool.evidence_store = self._evidence
 
     def send(self, user_message: str) -> str:
+        bind_store(self._evidence)
         self._transcript.append({"role": "user", "content": user_message})
         return self._run_until_end_turn()
 
@@ -55,6 +70,9 @@ class ConsoleAgent:
                 results.append(_tool_result(block.id, f"Unknown tool: {block.name}", is_error=True))
                 continue
             outcome = tool.run(arguments)
+            self._evidence.record(
+                block.name, arguments, _parse_json(outcome.content), outcome.is_error
+            )
             self._log_tool(block.name, arguments, outcome.content, is_error=outcome.is_error)
             results.append(_tool_result(block.id, outcome.content, is_error=outcome.is_error))
         return results
