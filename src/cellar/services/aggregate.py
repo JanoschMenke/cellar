@@ -92,6 +92,17 @@ def _provenance(store: EvidenceStore, name: str, norm: str) -> dict:
         return {}
 
 
+def _sourcing(provenance: dict) -> tuple[str, str]:
+    listings = provenance.get("commercial_listings") or provenance.get("catalog") or {}
+    fallback_url = str(provenance.get("cellosaurus_url", ""))
+    for supplier, info in listings.items():
+        if isinstance(info, dict):
+            accession = str(info.get("accession", "")).strip()
+            return f"{supplier} {accession}".strip(), str(info.get("url") or fallback_url)
+        return f"{supplier} {info}".strip(), fallback_url
+    return str(provenance.get("category") or "Cellosaurus"), fallback_url
+
+
 def _seed_for(
     store: EvidenceStore,
     name: str,
@@ -103,16 +114,12 @@ def _seed_for(
     provenance = _provenance(store, name, norm)
     facts = _find_by_name(store, "find_cell_model", "name", norm)
     tier = _tier_from(provenance.get("category") or category_hint, facts.get("model_type"))
-    catalog = provenance.get("catalog") or {}
-    source = next(
-        (f"{supplier} {catalog_id}" for supplier, catalog_id in catalog.items()),
-        provenance.get("category") or "Cellosaurus",
-    )
+    source, catalog_url = _sourcing(provenance)
     return SeedModel(
         name=name,
         tier=tier,
         source=source,
-        catalog_url=str(provenance.get("cellosaurus_url", "")),
+        catalog_url=catalog_url,
         mrna_expressed=0.6,
         protein_present=protein_present,
         isoform_match=isoform_match,

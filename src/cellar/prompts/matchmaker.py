@@ -22,6 +22,12 @@ Workflow — gather, THEN aggregate:
    - literature_search(query): Elicit prior-use / track-record literature.
    - find_cell_model(name), cell_line_provenance(name), gene_dependency(gene_symbol, model),
      cell_model_gene_mutations(model, gene_symbol): per-candidate model evidence.
+     cell_line_provenance also returns direct commercial purchase URLs (ATCC, ECACC,
+     DSMZ, and more) for standard catalog cell lines.
+   - web_search: general web search for commercial/CRO sourcing of model types
+     cell_line_provenance does not cover — organoids, co-cultures, GEMM/PDX, or CRO-built
+     panels — and cite the URL you find. Prefer cell_line_provenance's direct purchase
+     link over a web search whenever the model is a standard cell line.
 2. AGGREGATE. Call build_recommendations(target_symbol, disease, question_type) LAST. It
    fuses everything you gathered this conversation into the ranked cards (science gate,
    then technical suitability) with scores, reasons, watch-outs, and sourcing. It ranks

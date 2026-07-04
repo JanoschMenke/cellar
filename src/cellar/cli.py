@@ -9,7 +9,7 @@ from cellar.agents.console_agent import ConsoleAgent
 from cellar.config import ModelProvider, Settings, load_settings
 from cellar.prompts.matchmaker import MATCHMAKER_SYSTEM_PROMPT
 from cellar.services.llm import LlmClient, build_client
-from cellar.tools.registry import build_matchmaker_tools
+from cellar.tools.registry import build_matchmaker_tools, build_server_tools
 
 
 def _prompt_for_api_key() -> str | None:
@@ -62,6 +62,7 @@ def main() -> None:
         client=client,
         settings=settings,
         tools=build_matchmaker_tools(),
+        server_tools=build_server_tools(settings),
         system=MATCHMAKER_SYSTEM_PROMPT,
         verbose=verbose,
     )

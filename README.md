@@ -19,7 +19,7 @@ under `tools/`, the shared data vocabulary under `schemas/`, and cached evidence
 
 - `services/retrieval.py`  — legacy live helpers (Open Targets + Cellosaurus disease search) used by the demo
 - `services/open_targets.py` — Open Targets GraphQL client: target–disease association + per-evidence-type breakdown, tractability, disease target leaderboard (the "underrated target" signal)
-- `services/cellosaurus.py` — Cellosaurus client: cell-line identity, provenance/reliability (problematic-line flags), supplier catalogue numbers, and cross-refs (CVCL → SIDM/DepMap/ATCC)
+- `services/cellosaurus.py` — Cellosaurus client: cell-line identity, provenance/reliability (problematic-line flags), direct commercial purchase URLs (ATCC/ECACC/DSMZ/~15 more), and cross-refs (CVCL → SIDM/DepMap)
 - `services/cell_model_passports.py` — Sanger Cell Model Passports (DepMap) JSON:API client: model/gene lookup, per-model datasets, matchmaker fact sheets
 - `services/dependency.py` — CRISPR gene-dependency ("is my target essential here") from the Sanger/Broad integrated Cancer Dependency Map (Project Score `crispr_ko` gene-effect); DepMap-equivalent, queried live via the CMP API
 - `services/proteomics.py` — tiered protein-evidence synthesizer + MS-absence guard; live PRIDE + HPA
@@ -163,26 +163,28 @@ Ask it something like *"Is MIA PaCa-2 in Cell Model Passports, and does it carry
 mutation?"* and it calls `find_cell_model` / `cell_model_gene_mutations`, then answers from the
 live Sanger data (SIDM id, available datasets, KRAS G12C, …). A `gene_dependency` tool — *"Is
 KRAS a CRISPR dependency in MIA PaCa-2?"* — returns the gene-effect score from the Sanger/Broad
-Cancer Dependency Map; a `cell_line_provenance` tool adds Cellosaurus identity/reliability checks
-— *"Is the KB cell line problematic?"* returns its CVCL accession, the contamination flag,
-supplier catalogue numbers, and cross-refs to SIDM/DepMap; a `target_disease_evidence` tool —
-*"What does Open Targets say about ZDHHC20 for PDAC?"* — returns the association score, its
-evidence-type breakdown and tractability (flagging targets the databases underrate); and a
-`literature_search` tool — *"Search the literature for ZDHHC20 in pancreatic cancer"* — semantically
-searches Elicit's 138M+ paper corpus and returns citable evidence (title, authors, DOI/PMID,
-abstract) for exactly the cases where a low association score hides a real, well-studied target.
+Cancer Dependency Map. A `cell_line_provenance` tool adds Cellosaurus identity/reliability checks
+— *"Is the KB cell line problematic?"* returns its CVCL accession, the contamination flag, a
+**direct commercial purchase URL** for standard catalog lines (ATCC, ECACC, DSMZ, and ~15 more
+regional biobanks), and cross-refs to SIDM/DepMap. A `target_disease_evidence` tool — *"What
+does Open Targets say about ZDHHC20 for PDAC?"* — returns the association score, its
+evidence-type breakdown and tractability (flagging targets the databases underrate). A
+`literature_search` tool — *"Search the literature for ZDHHC20 in pancreatic cancer"* —
+semantically searches Elicit's 138M+ paper corpus and returns citable evidence (title, authors,
+DOI/PMID, abstract) for exactly the cases where a low association score hides a real,
+well-studied target. A `protein_atlas_profile` tool — *"Does ZDHHC20 have mRNA-vs-protein
+discordance, and is it prognostic in pancreatic cancer?"* — returns the Human Protein Atlas
+localization, expression, antibody reliability and cancer prognostic evidence. Finally, the
+agent carries Anthropic's native **`web_search`** tool (direct Anthropic API only, not on
+Bedrock) for commercial/CRO sourcing on model types Cellosaurus doesn't catalog — organoids,
+co-cultures, GEMM/PDX — falling back to a live web search and citing the URL it finds.
+
 Adding a data source is drop-in: create a `tools/<source>.py` with a `Tool` subclass and it is
 **auto-discovered** by `tools/registry.py` — no central registration. Set `include_in_agent =
 False` on a tool to keep it out of the agent (e.g. the `count_characters` smoke-test tool).
-Cancer Dependency Map, and a `cell_line_provenance` tool adds Cellosaurus identity/reliability
-checks — *"Is the KB cell line problematic?"* returns its CVCL accession, the contamination flag,
-supplier catalogue numbers, and cross-refs to SIDM/DepMap; and a `protein_atlas_profile` tool —
-*"Does ZDHHC20 have mRNA-vs-protein discordance, and is it prognostic in pancreatic cancer?"* —
-returns the Human Protein Atlas localization, expression, antibody reliability and cancer
-prognostic evidence. Adding a data source is drop-in: create a `tools/<source>.py` with a `Tool`
-subclass and it is **auto-discovered** by
-`tools/registry.py` — no central registration. Set `include_in_agent = False` on a tool to keep
-it out of the agent (e.g. the `count_characters` smoke-test tool).
+Server-executed tools (like `web_search`) are different — they're plain dicts added via
+`tools/registry.py`'s `build_server_tools(settings)`, not `Tool` subclasses, since Anthropic
+resolves them itself and the result arrives already filled in on the same response.
 
 Environment overrides: `CELLAR_PROVIDER` (`direct_api` | `bedrock`), `CELLAR_MODEL_NAME`,
 `AWS_REGION`. The `literature_search` tool additionally needs `ELICIT_API_KEY` (a paid Elicit

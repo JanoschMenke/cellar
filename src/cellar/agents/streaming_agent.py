@@ -24,11 +24,13 @@ class StreamingAgent:
         client: LlmClient,
         settings: Settings,
         tools: list[Tool],
+        server_tools: list[dict[str, object]] | None = None,
         system: str | None = None,
     ) -> None:
         self._client = client
         self._settings = settings
         self._tools_by_name = {tool.name: tool for tool in tools}
+        self._server_tools = server_tools or []
         self._system = system or NOT_GIVEN
         self._transcript: list[MessageParam] = []
         self._evidence = EvidenceStore()
@@ -42,12 +44,16 @@ class StreamingAgent:
         yield from self._run_until_end_turn()
 
     def _run_until_end_turn(self) -> Iterator[StreamEvent]:
+        tools = [
+            *self._server_tools,
+            *(tool.to_api_schema() for tool in self._tools_by_name.values()),
+        ]
         while True:
             with self._client.messages.stream(
                 model=self._settings.model_name,
                 max_tokens=self._settings.max_output_tokens,
                 system=self._system,
-                tools=[tool.to_api_schema() for tool in self._tools_by_name.values()],
+                tools=tools,
                 messages=self._transcript,
             ) as stream:
                 for event in stream:
@@ -57,9 +63,17 @@ class StreamingAgent:
                         yield StreamEvent(
                             kind=StreamEventKind.TOOL_USE, tool_name=event.content_block.name
                         )
+                    elif event.type == "content_block_start" and event.content_block.type == "server_tool_use":
+                        yield StreamEvent(
+                            kind=StreamEventKind.TOOL_USE, tool_name=event.content_block.name
+                        )
                 response = stream.get_final_message()
 
             self._transcript.append({"role": "assistant", "content": response.content})
+            if response.stop_reason == "pause_turn":
+                # A server-side tool (e.g. web_search) hit its internal iteration
+                # cap. Resend as-is — no extra message — and the API resumes.
+                continue
             if response.stop_reason != "tool_use":
                 yield StreamEvent(kind=StreamEventKind.DONE)
                 return

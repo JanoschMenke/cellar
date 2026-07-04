@@ -3,9 +3,21 @@ import inspect
 import pkgutil
 
 import cellar.tools as tools_package
+from cellar.config import ModelProvider, Settings
 from cellar.tools.base import Tool
 
 _SKIP_MODULES = {"base", "registry"}
+
+# Anthropic's server-executed web search — resolved and billed by Anthropic itself,
+# never dispatched through our Tool.run() loop. Used for commercial/CRO sourcing
+# leads on model types Cellosaurus doesn't catalog (organoids, co-cultures,
+# GEMM/PDX). Not supported on Amazon Bedrock (see the Claude API server-tools
+# availability table), so it is only added for the direct Anthropic API.
+_WEB_SEARCH_TOOL: dict[str, object] = {
+    "type": "web_search_20260209",
+    "name": "web_search",
+    "max_uses": 5,
+}
 
 
 def _import_tool_modules() -> None:
@@ -38,3 +50,14 @@ def build_matchmaker_tools() -> list[Tool]:
     _import_tool_modules()
     classes = sorted(_concrete_tool_classes(), key=lambda cls: cls.name)
     return [cls() for cls in classes]
+
+
+def build_server_tools(settings: Settings) -> list[dict[str, object]]:
+    """Server-executed tool specs (raw API dicts, not Tool subclasses) — Anthropic
+    resolves these itself and the result arrives already filled in on the same
+    response, so the agent loop must not try to dispatch them through
+    Tool.run(). Gated by provider since not every server tool is available on
+    every provider."""
+    if settings.provider is ModelProvider.BEDROCK:
+        return []
+    return [_WEB_SEARCH_TOOL]
