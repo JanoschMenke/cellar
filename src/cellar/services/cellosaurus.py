@@ -6,11 +6,15 @@ owns as well:
   * provenance & reliability — is this line problematic (misidentified /
     contaminated / from another species)? Cellosaurus flags these explicitly with
     a "Problematic cell line" comment. Feeds the `provenance_ok` score.
-  * identity bridge + sourcing — a name resolves to a stable CVCL accession plus a
-    map of cross-references: supplier catalogue numbers (ATCC / ECACC / DSMZ / …)
-    for the sourcing lead, and IDs into our other sources
-    (Cell_Model_Passport -> SIDM, DepMap -> ACH), so the agent can pivot from a
-    name to the CMP / dependency tools.
+  * identity bridge + commercial sourcing — a name resolves to a stable CVCL
+    accession plus cross-references. Each xref carries a `category`; entries
+    tagged "Cell line collections (Providers)" are commercial/biobank suppliers
+    and — verified live — each carries a direct, ready-to-click product-page
+    `url` (e.g. ATCC -> https://www.atcc.org/products/CRL-1469), not just a
+    catalogue accession. Filtering by that category (rather than a hardcoded
+    supplier name list) picks up every provider Cellosaurus tracks, including
+    regional biobanks (BCRC, RCB, KCLB, …) we would otherwise miss. Other xrefs
+    bridge to our own sources (Cell_Model_Passport -> SIDM, DepMap -> ACH).
 
 Public REST API, no auth. Verified live:
   base     https://api.cellosaurus.org
@@ -28,8 +32,9 @@ _COMPACT_FIELDS = "id,ac,sy,ca,di,ox,sx,ag,cc,dr"
 _PROBLEM_CATEGORY = "Problematic cell line"
 _CAUTION_CATEGORY = "Caution"
 
-# Cross-reference databases that are cell-line suppliers / biobanks (sourcing leads).
-_SUPPLIER_DBS = ("ATCC", "ECACC", "DSMZ", "JCRB", "RCB", "KCLB", "BCRC", "CLS", "ICLC", "Lonza")
+# The xref category Cellosaurus uses for commercial/biobank suppliers (ATCC,
+# ECACC, DSMZ, and ~15 more regional providers) — each carries a direct url.
+_COMMERCIAL_PROVIDER_CATEGORY = "Cell line collections (Providers)"
 # Cross-reference databases that bridge to our other sources.
 _ID_BRIDGES = {"Cell_Model_Passport": "cell_model_passport", "DepMap": "depmap", "Cosmic": "cosmic"}
 
@@ -65,12 +70,16 @@ def _comments(record: dict[str, object]) -> list[dict[str, str]]:
     ]
 
 
-def _xrefs(record: dict[str, object]) -> dict[str, str]:
-    out: dict[str, str] = {}
+def _xrefs(record: dict[str, object]) -> dict[str, dict[str, str]]:
+    out: dict[str, dict[str, str]] = {}
     for x in record.get("xref-list") or []:
         db = x.get("database")
         if db and db not in out:
-            out[db] = x.get("accession")
+            out[db] = {
+                "accession": x.get("accession"),
+                "url": x.get("url"),
+                "category": x.get("category"),
+            }
     return out
 
 
@@ -123,8 +132,12 @@ def provenance(name: str) -> dict[str, object] | None:
     problems = [c for c in record["comments"] if c["category"] == _PROBLEM_CATEGORY]
     cautions = [c["value"] for c in record["comments"] if c["category"] == _CAUTION_CATEGORY]
     xrefs = record["xrefs"]
-    catalog = {db: xrefs[db] for db in _SUPPLIER_DBS if db in xrefs}
-    cross_ids = {alias: xrefs[db] for db, alias in _ID_BRIDGES.items() if db in xrefs}
+    commercial_listings = {
+        db: {"accession": entry["accession"], "url": entry["url"]}
+        for db, entry in xrefs.items()
+        if entry.get("category") == _COMMERCIAL_PROVIDER_CATEGORY and entry.get("url")
+    }
+    cross_ids = {alias: xrefs[db]["accession"] for db, alias in _ID_BRIDGES.items() if db in xrefs}
     accession = record["accession"]
     return {
         "found": True,
@@ -136,7 +149,7 @@ def provenance(name: str) -> dict[str, object] | None:
         "problems": [p["value"] for p in problems],
         "cautions": cautions,
         "provenance_ok": 0.0 if problems else 1.0,
-        "catalog": catalog,
+        "commercial_listings": commercial_listings,
         "cross_ids": cross_ids,
         "cellosaurus_url": f"https://www.cellosaurus.org/{accession}" if accession else None,
     }

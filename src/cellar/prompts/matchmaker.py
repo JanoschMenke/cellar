@@ -21,6 +21,13 @@ Tools:
   proteomics modality routing (MS vs plasma panels).
 - pathway_relations(target_symbol): STRING partners + literature-derived relations and
   whether each partner gates model selection.
+- cell_line_provenance(name): identity, contamination/misidentification check, and
+  direct commercial purchase URLs (ATCC, ECACC, DSMZ, and more) for a standard
+  catalog cell line.
+- web_search: general web search. Use it for commercial/CRO sourcing on model types
+  cell_line_provenance does not cover — organoids, co-cultures, GEMM/PDX, or other
+  CRO-built models — and cite the URL you find. Prefer cell_line_provenance's direct
+  purchase link over a web search whenever the model is a standard cell line.
 
 Output discipline:
 - Never use emojis.

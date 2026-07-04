@@ -12,7 +12,7 @@ from cellar.schemas.matchmaker import MatchmakerQuery, QuestionType
 from cellar.schemas.recommendation import RecommendationReport
 from cellar.services.llm import build_client
 from cellar.services.matchmaker import UnsupportedTargetError, run_matchmaker
-from cellar.tools.registry import build_matchmaker_tools
+from cellar.tools.registry import build_matchmaker_tools, build_server_tools
 
 _STATIC_DIR = Path(__file__).parent / "static"
 _DESIGN_DIR = Path(__file__).parent / "design_system"
@@ -25,6 +25,7 @@ def create_app() -> FastAPI:
         client=client,
         settings=settings,
         tools=build_matchmaker_tools(),
+        server_tools=build_server_tools(settings),
         system=MATCHMAKER_SYSTEM_PROMPT,
     )
     app = FastAPI(title="cellar")
