@@ -157,8 +157,8 @@
     transition: box-shadow .18s ease; }
   .rec-card[open] { box-shadow: var(--cellar-shadow-pop); }
   .rec-card--rejected { opacity: .82; }
-  .rec-head { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; cursor: pointer;
-    list-style: none; padding: 13px 15px; }
+  .rec-head { display: flex; align-items: center; gap: 9px; flex-wrap: nowrap; cursor: pointer;
+    list-style: none; padding: 16px 15px; box-sizing: border-box; }
   .rec-head::-webkit-details-marker { display: none; }
   .rec-head:hover { background: var(--cellar-paper); }
   .rec-chevron { font-family: var(--cellar-font-mono); font-size: 12px; color: var(--cellar-ink-faint);
@@ -166,13 +166,14 @@
   .rec-card[open] .rec-chevron { transform: rotate(90deg); }
   .rec-rank { font-family: var(--cellar-font-mono); font-size: 12px; color: var(--cellar-ink-faint); font-variant-numeric: tabular-nums; flex: none; }
   .rec-name { font-family: var(--cellar-font-display); font-weight: 600; font-size: var(--cellar-text-body);
-    letter-spacing: -0.01em; color: var(--cellar-ink); }
-  .rec-grow { flex: 1; }
+    letter-spacing: -0.01em; color: var(--cellar-ink); line-height: 1.4;
+    flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .rec-body { padding: 0 15px 15px; }
+  .rec-card[open] .rec-body { max-height: min(780px, 74dvh); overflow-y: auto; }
   .rec-chip { font-family: var(--cellar-font-mono); font-size: 11px; font-weight: 600; padding: 4px 10px;
-    border-radius: var(--cellar-radius-sm); border: 1px solid transparent; white-space: nowrap; }
+    border-radius: var(--cellar-radius-sm); border: 1px solid transparent; white-space: nowrap; flex: none; }
   .rec-badge { font-family: var(--cellar-font-mono); font-size: 11px; font-weight: 600; padding: 4px 11px;
-    border-radius: var(--cellar-radius-pill); white-space: nowrap; }
+    border-radius: var(--cellar-radius-pill); white-space: nowrap; flex: none; }
   .rec-badge--yes { color: var(--cellar-xylem); background: var(--cellar-xylem-tint); border: 1px solid var(--cellar-xylem-border); }
   .rec-badge--no { color: var(--cellar-signal); background: var(--cellar-signal-tint); border: 1px solid #e8dcc0; }
   .rec-conf { font-family: var(--cellar-font-mono); font-size: 11px; color: var(--cellar-ink-faint);
@@ -530,7 +531,6 @@
     head.appendChild(el("span", "rec-chevron", "▸"));
     head.appendChild(el("span", "rec-rank", "#" + c.rank));
     head.appendChild(el("span", "rec-name", c.model_name));
-    head.appendChild(el("span", "rec-grow"));
     const tier = el("span", "rec-chip", c.tier_label);
     const tok = TIER_TOKEN[c.tier] || "cellline";
     tier.style.color = "var(--cellar-" + tok + ")";
