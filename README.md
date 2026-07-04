@@ -26,7 +26,8 @@ under `tools/`, the shared data vocabulary under `schemas/`, and cached evidence
 - `services/isoforms.py`   — Ensembl protein-coding isoform enumeration + splicing-risk flag
 - `services/pathway.py`    — STRING partners + literature-derived relation map + science gate
 - `services/mechanism.py`  — MoA -> culture-context layer ("right target, wrong model" check)
-- `services/evidence.py`   — Elicit + Amass query templates
+- `services/elicit.py`     — Elicit semantic literature search (138M+ papers): citable evidence when structured DBs show weak/absent target-disease signal
+- `services/evidence.py`   — Elicit extraction/Amass query templates (documented wiring points; not yet implemented)
 - `tools/scoring.py`       — two-stage (science 0.65 / technical 0.35) deterministic scoring
 - `tools/recommend.py`     — per-model decision cards (why / watch-outs / context / sourcing)
 - `schemas/matchmaker.py`  — `ModelCandidate` + `ModelTier` / `QuestionType` enums
@@ -163,15 +164,20 @@ live Sanger data (SIDM id, available datasets, KRAS G12C, …). A `gene_dependen
 KRAS a CRISPR dependency in MIA PaCa-2?"* — returns the gene-effect score from the Sanger/Broad
 Cancer Dependency Map; a `cell_line_provenance` tool adds Cellosaurus identity/reliability checks
 — *"Is the KB cell line problematic?"* returns its CVCL accession, the contamination flag,
-supplier catalogue numbers, and cross-refs to SIDM/DepMap; and a `target_disease_evidence` tool —
+supplier catalogue numbers, and cross-refs to SIDM/DepMap; a `target_disease_evidence` tool —
 *"What does Open Targets say about ZDHHC20 for PDAC?"* — returns the association score, its
-evidence-type breakdown and tractability (flagging targets the databases underrate). Adding a
-data source is drop-in: create a `tools/<source>.py` with a `Tool` subclass and it is
+evidence-type breakdown and tractability (flagging targets the databases underrate); and a
+`literature_search` tool — *"Search the literature for ZDHHC20 in pancreatic cancer"* — semantically
+searches Elicit's 138M+ paper corpus and returns citable evidence (title, authors, DOI/PMID,
+abstract) for exactly the cases where a low association score hides a real, well-studied target.
+Adding a data source is drop-in: create a `tools/<source>.py` with a `Tool` subclass and it is
 **auto-discovered** by `tools/registry.py` — no central registration. Set `include_in_agent =
 False` on a tool to keep it out of the agent (e.g. the `count_characters` smoke-test tool).
 
 Environment overrides: `CELLAR_PROVIDER` (`direct_api` | `bedrock`), `CELLAR_MODEL_NAME`,
-`AWS_REGION`.
+`AWS_REGION`. The `literature_search` tool additionally needs `ELICIT_API_KEY` (a paid Elicit
+Pro/Scale/Enterprise plan with API access) in `.env` or the environment — without it, that one
+tool call fails but the rest of the agent still works.
 
 ## Project layout notes
 
