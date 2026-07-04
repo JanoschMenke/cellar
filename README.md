@@ -88,6 +88,55 @@ uv add pydantic
 Do **not** hand-edit the `dependencies` list in `pyproject.toml` or call `pip install` — uv
 manages both the manifest and the lockfile together, and manual edits break reproducibility.
 
+## Running the console agent
+
+`cellar` ships a minimal console agent (a thin tool-use loop) for smoke-testing the model
+connection. It supports two providers.
+
+**Direct Anthropic API (default).** Needs an `sk-ant-...` key. If `ANTHROPIC_API_KEY` is set it
+is used automatically; otherwise the agent prompts you to paste one at startup.
+
+```bash
+export ANTHROPIC_API_KEY=sk-ant-...   # optional — you'll be prompted if unset
+uv run cellar
+```
+
+**Amazon Bedrock (opt-in).** No Anthropic key — authenticates with AWS credentials. Requires an
+AWS profile with Bedrock invoke access.
+
+```bash
+aws sso login --profile dev-run
+AWS_PROFILE=dev-run CELLAR_PROVIDER=bedrock uv run cellar
+```
+
+On the very first run with the direct API and no key set, the agent prompts you to paste an
+`sk-ant-...` key, then saves it to `.env` (gitignored) so you are not asked again.
+
+### Quick walkthrough
+
+Once it starts you get an interactive prompt. Type a normal message for plain chat, or ask
+something that needs a tool to see the tool-calling loop in action:
+
+```text
+cellar console agent — provider direct_api, model claude-opus-4-8
+Type a message, or 'exit' to quit.
+
+you > what is a cell line?
+cellar > A cell line is a population of cells grown in culture that ...
+
+you > how many characters are in "hello world"?
+cellar > The text "hello world" contains 11 characters (including the space).
+
+you > exit
+```
+
+The second question is the interesting one: the agent decides to call the `count_characters`
+tool, the loop runs the tool locally, feeds the result back, and Claude answers with it — the
+same deterministic-tool pattern the whole project is built on. Type `exit` (or Ctrl-D) to quit.
+
+Environment overrides: `CELLAR_PROVIDER` (`direct_api` | `bedrock`), `CELLAR_MODEL_NAME`,
+`AWS_REGION`.
+
 ## Project layout
 
 The package lives under `src/cellar/`. See [CLAUDE.md](./CLAUDE.md) for the module boundaries,
