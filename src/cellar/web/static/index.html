@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>cellar</title>
+<title>Cellar</title>
 <link rel="icon" type="image/svg+xml" href="/assets/cellar-mark-favicon.svg" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -88,6 +88,50 @@
   .tool.error .tool__result { color: var(--cellar-signal); }
   .tool__result:empty { display: none; }
 
+  /* --- Recommendation cards --- */
+  .rec-cards { display: flex; flex-direction: column; gap: 12px; margin: 12px 0; }
+  .rec-card { background: var(--cellar-surface); border: 1px solid var(--cellar-border);
+    border-radius: var(--cellar-radius-lg); box-shadow: var(--cellar-shadow-card); padding: 15px 17px; }
+  .rec-card--rejected { opacity: .82; }
+  .rec-head { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+  .rec-rank { font-family: var(--cellar-font-mono); font-size: 12px; color: var(--cellar-ink-faint); }
+  .rec-name { font-family: var(--cellar-font-display); font-weight: 600; font-size: var(--cellar-text-lg);
+    color: var(--cellar-ink); }
+  .rec-grow { flex: 1; }
+  .rec-chip { font-family: var(--cellar-font-mono); font-size: 11px; font-weight: 600; padding: 4px 9px;
+    border-radius: var(--cellar-radius-sm); border: 1px solid transparent; white-space: nowrap; }
+  .rec-badge { font-family: var(--cellar-font-mono); font-size: 11px; font-weight: 600; padding: 4px 10px;
+    border-radius: var(--cellar-radius-pill); white-space: nowrap; }
+  .rec-badge--yes { color: var(--cellar-xylem); background: var(--cellar-xylem-tint); border: 1px solid var(--cellar-xylem-border); }
+  .rec-badge--no { color: var(--cellar-signal); background: var(--cellar-signal-tint); border: 1px solid #e8dcc0; }
+  .rec-conf { font-family: var(--cellar-font-mono); font-size: 11px; color: var(--cellar-ink-faint);
+    text-transform: uppercase; letter-spacing: .08em; }
+  .rec-headline { color: var(--cellar-ink-muted); font-size: 13px; margin: 9px 0 12px; }
+  .rec-scores { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 9px 16px; }
+  .rec-score__top { display: flex; justify-content: space-between; font-family: var(--cellar-font-mono);
+    font-size: var(--cellar-text-label); letter-spacing: .05em; text-transform: uppercase; color: var(--cellar-ink-faint); }
+  .rec-score__val { color: var(--cellar-ink); }
+  .rec-track { height: 6px; border-radius: 3px; background: var(--cellar-paper); margin-top: 4px; overflow: hidden; }
+  .rec-fill { height: 100%; border-radius: 3px; background: var(--cellar-xylem); }
+  .rec-fill--strong { background: var(--cellar-conf-strong); }
+  .rec-fill--moderate { background: var(--cellar-conf-moderate); }
+  .rec-fill--weak { background: var(--cellar-conf-weak); }
+  .rec-section { margin-top: 12px; }
+  .rec-section__label { font-family: var(--cellar-font-mono); font-size: var(--cellar-text-label);
+    letter-spacing: .12em; text-transform: uppercase; color: var(--cellar-ink-faint); margin-bottom: 5px; }
+  .rec-dim { font-size: 13px; margin: 2px 0; color: var(--cellar-ink); }
+  .rec-dim__mark { font-family: var(--cellar-font-mono); }
+  .rec-dim--good .rec-dim__mark { color: var(--cellar-conf-strong); }
+  .rec-dim--warn .rec-dim__mark { color: var(--cellar-signal); }
+  .rec-dim__val { font-family: var(--cellar-font-mono); font-size: 11.5px; color: var(--cellar-ink-muted); }
+  .rec-note { font-size: 12.5px; color: var(--cellar-ink-muted); margin: 3px 0; padding-left: 15px; position: relative; }
+  .rec-note::before { content: "•"; position: absolute; left: 3px; color: var(--cellar-sage); }
+  .rec-action { font-size: 12.5px; color: var(--cellar-ink); margin: 3px 0; padding-left: 17px; position: relative; }
+  .rec-action::before { content: "\2192"; position: absolute; left: 0; color: var(--cellar-xylem); font-weight: 600; }
+  .rec-foot { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--cellar-border);
+    font-size: 12.5px; color: var(--cellar-ink-muted); }
+  .rec-foot a { color: var(--cellar-xylem); }
+
   .composer { border-top: 1px solid var(--cellar-border); padding: 15px 22px; display: flex; gap: 10px; }
   .composer input { flex: 1; font-family: var(--cellar-font-body); font-size: 14.5px;
     background: var(--cellar-surface); border: 1px solid var(--cellar-border-strong);
@@ -114,7 +158,7 @@
         </svg>
       </span>
       <div>
-        <div class="wordmark">cellar</div>
+        <div class="wordmark">Cellar</div>
         <div class="tagline">agentic model matchmaker</div>
       </div>
       <div class="spacer"></div>
@@ -247,7 +291,7 @@
 
   function addAssistant() {
     const wrap = el("div", "assistant");
-    wrap.appendChild(el("div", "eyebrow", "cellar"));
+    wrap.appendChild(el("div", "eyebrow", "Cellar"));
     const body = el("div", "body");
     const caret = el("span", "caret");
     body.appendChild(caret);
@@ -287,12 +331,123 @@
     card.classList.remove("running");
     card.classList.add(ev.is_error ? "error" : "done");
     card._status.textContent = ev.is_error ? "error" : "done";
+
+    if (!ev.is_error && ev.tool_name === "recommend_models") {
+      let report = null;
+      try { report = JSON.parse(ev.content); } catch (e) { report = null; }
+      if (report && Array.isArray(report.cards)) {
+        const n = report.cards.length;
+        card._res.textContent = (report.verdict || "") + "  ·  " + n + " model" + (n === 1 ? "" : "s") + " ranked";
+        card.insertAdjacentElement("afterend", renderRecommendations(report));
+        return;
+      }
+    }
+
     let line = "";
     if (ev.tool_input && Object.keys(ev.tool_input).length) {
       line += Object.entries(ev.tool_input).map(([k, v]) => k + "=" + v).join("  ") + "  →  ";
     }
     line += ev.content || "";
     card._res.textContent = line;
+  }
+
+  const TIER_TOKEN = { "2d_line": "cellline", organoid: "organoid", coculture: "pdx", in_vivo: "mouse" };
+
+  function strengthClass(v) {
+    return v >= 0.7 ? "strong" : v >= 0.45 ? "moderate" : "weak";
+  }
+
+  function scoreBar(label, value) {
+    const box = el("div", "rec-score");
+    const top = el("div", "rec-score__top");
+    top.appendChild(el("span", null, label));
+    top.appendChild(el("span", "rec-score__val", value == null ? "—" : value.toFixed(2)));
+    box.appendChild(top);
+    const track = el("div", "rec-track");
+    const fill = el("div", "rec-fill rec-fill--" + strengthClass(value || 0));
+    fill.style.width = Math.round((value || 0) * 100) + "%";
+    track.appendChild(fill);
+    box.appendChild(track);
+    return box;
+  }
+
+  function dimRow(d, kind) {
+    const row = el("div", "rec-dim rec-dim--" + (kind === "good" ? "good" : "warn"));
+    row.appendChild(el("span", "rec-dim__mark", kind === "good" ? "✓ " : "△ "));
+    row.appendChild(el("span", null, d.label + " "));
+    row.appendChild(el("span", "rec-dim__val", "(" + d.value.toFixed(2) + ")"));
+    return row;
+  }
+
+  function section(label, nodes) {
+    if (!nodes.length) return null;
+    const s = el("div", "rec-section");
+    s.appendChild(el("div", "rec-section__label", label));
+    nodes.forEach((nd) => s.appendChild(nd));
+    return s;
+  }
+
+  function recCard(c) {
+    const card = el("div", "rec-card" + (c.recommended ? "" : " rec-card--rejected"));
+
+    const head = el("div", "rec-head");
+    head.appendChild(el("span", "rec-rank", "#" + c.rank));
+    head.appendChild(el("span", "rec-name", c.model_name));
+    const tier = el("span", "rec-chip", c.tier_label);
+    const tok = TIER_TOKEN[c.tier] || "cellline";
+    tier.style.color = "var(--cellar-" + tok + ")";
+    tier.style.background = "var(--cellar-" + tok + "-tint)";
+    tier.style.borderColor = "var(--cellar-" + tok + "-border)";
+    head.appendChild(tier);
+    head.appendChild(el("span", "rec-grow"));
+    head.appendChild(el("span", "rec-conf", c.confidence));
+    head.appendChild(el("span", "rec-badge " + (c.recommended ? "rec-badge--yes" : "rec-badge--no"), c.verdict_label));
+    card.appendChild(head);
+
+    card.appendChild(el("div", "rec-headline", c.headline));
+
+    const scores = el("div", "rec-scores");
+    scores.appendChild(scoreBar("Overall", c.scores.overall));
+    scores.appendChild(scoreBar("Science", c.scores.science));
+    scores.appendChild(scoreBar("Technical", c.scores.technical));
+    if (c.scores.context != null) scores.appendChild(scoreBar("MoA context", c.scores.context));
+    card.appendChild(scores);
+
+    const why = section("Why this model", (c.reasons || []).map((d) => dimRow(d, "good")));
+    if (why) card.appendChild(why);
+    const watch = section("Watch-outs", (c.watch_outs || []).map((d) => dimRow(d, "warn")));
+    if (watch) card.appendChild(watch);
+
+    const actions = (c.mechanism && c.mechanism.actions) || [];
+    const actNodes = actions.map((a) => {
+      const line = a.action + (a.readout_hint ? " — unlocks: " + a.readout_hint : "");
+      return el("div", "rec-action", line);
+    });
+    const act = section("Culture actions to make the mechanism observable", actNodes);
+    if (act) card.appendChild(act);
+
+    const notes = (c.context_notes || []).map((t) => el("div", "rec-note", t));
+    const ctx = section("Context for your decision", notes);
+    if (ctx) card.appendChild(ctx);
+
+    const src = c.sourcing || {};
+    if (src.supplier_or_cro || src.catalog_url) {
+      const foot = el("div", "rec-foot");
+      foot.appendChild(el("span", null, "Source: " + (src.supplier_or_cro || "—") + " "));
+      if (src.catalog_url) {
+        const a = el("a", null, "catalog ↗");
+        a.href = src.catalog_url; a.target = "_blank"; a.rel = "noopener";
+        foot.appendChild(a);
+      }
+      card.appendChild(foot);
+    }
+    return card;
+  }
+
+  function renderRecommendations(report) {
+    const wrap = el("div", "rec-cards");
+    report.cards.forEach((c) => wrap.appendChild(recCard(c)));
+    return wrap;
   }
 
   function send(text) {
