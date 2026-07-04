@@ -38,23 +38,84 @@ def protein_coding_isoforms(ensembl_gene_id):
     return out
 
 def isoform_risk_summary(isoforms, functional_len_min=None):
-    """Heuristic: if there are multiple protein-coding isoforms spanning a wide
-    length range, isoform-specificity of the model matters. functional_len_min
-    lets you flag truncated forms likely to have lost the catalytic domain."""
-    lens = [i["aa_length"] for i in isoforms if i["aa_length"]]
-    canonical = next((i for i in isoforms if i["is_canonical"]), None)
-    n_alt = len(isoforms) - (1 if canonical else 0)
+    """Grade whether picking the wrong protein-coding isoform could change the
+    readout. Risk is driven by whether a SUBSTANTIALLY truncated isoform exists
+    (one short enough to likely drop a functional/catalytic domain) — not merely
+    by how many isoforms there are. functional_len_min, when given, flags any
+    isoform below that amino-acid length as domain-losing."""
+    coding = [i for i in isoforms if i.get("aa_length")]
+    canonical = next((i for i in isoforms if i.get("is_canonical")), None)
+    canonical_aa = canonical.get("aa_length") if canonical else None
+    lens = [i["aa_length"] for i in coding]
     span = (min(lens), max(lens)) if lens else (None, None)
-    risk = "high" if (n_alt >= 3 and lens and (max(lens) - min(lens)) > 50) else "low"
+    n_alt = len(coding) - (1 if canonical and canonical.get("aa_length") else 0)
+
+    alternatives = [i for i in coding if not i.get("is_canonical")]
+    # Ensembl labels many tiny ORFs / NMD / partial transcripts 'protein_coding'.
+    # They are almost never the expressed functional protein, so judge risk only on
+    # PLAUSIBLE isoforms (>= half the canonical length); count the rest as fragments.
+    plausible = [
+        i for i in alternatives if not canonical_aa or i["aa_length"] >= 0.5 * canonical_aa
+    ]
+    n_fragments = len(alternatives) - len(plausible)
+    shortest = min(plausible, key=lambda i: i["aa_length"], default=None)
+    frac = shortest["aa_length"] / canonical_aa if shortest and canonical_aa else None
+    short_label = (shortest.get("name") or shortest["transcript_id"]) if shortest else None
+    fragment_note = f" ({n_fragments} short fragment transcript(s) ignored)" if n_fragments else ""
+    functional = ([canonical] if canonical and canonical.get("aa_length") else []) + plausible
+    func_lens = [i["aa_length"] for i in functional]
+    func_span = (min(func_lens), max(func_lens)) if func_lens else (None, None)
+    n_functional = len(functional)
+    n_substantial = len(plausible)
+    # Only a caller-supplied domain boundary is a reliable domain-loss signal; Ensembl
+    # transcript length alone over-flags because almost every gene has some mid-length form.
+    below_functional = [i for i in plausible if functional_len_min and i["aa_length"] < functional_len_min]
+
+    if below_functional:
+        risk = "high"
+        s = min(below_functional, key=lambda i: i["aa_length"])
+        s_label = s.get("name") or s["transcript_id"]
+        message = (
+            f"A substantial isoform {s_label} ({s['aa_length']} aa) is below the functional length "
+            f"({functional_len_min} aa) and likely lacks the required domain — confirm the model "
+            f"expresses the full-length canonical {canonical.get('name')} ({canonical_aa} aa) with an "
+            "isoform-specific antibody or junction-level RNA-seq."
+        )
+    else:
+        risk = "low"
+        if n_substantial == 0:
+            core = (
+                f"The canonical {canonical.get('name')} ({canonical_aa} aa) is the only full-length "
+                "protein-coding isoform"
+            )
+        else:
+            core = (
+                f"Ensembl annotates {n_functional} protein-coding isoforms ({func_span[0]}-{func_span[1]} aa), "
+                f"mostly minor/predicted forms; the canonical {canonical.get('name')} ({canonical_aa} aa) "
+                "is assumed to be the expressed protein"
+            )
+        message = (
+            f"{core}{fragment_note}. Isoform choice is treated as low-risk — a firmer call would need "
+            "the expressed isoform (junction-level RNA-seq) or a known functional-domain length "
+            "(pass functional_len_min)."
+        )
+
     return {
-        "canonical": canonical["name"] if canonical else None,
-        "canonical_aa": canonical["aa_length"] if canonical else None,
-        "n_protein_coding": len(isoforms),
+        "canonical": canonical.get("name") if canonical else None,
+        "canonical_aa": canonical_aa,
+        "n_protein_coding": len(coding),
         "n_alternative": n_alt,
         "aa_span": span,
+        "shortest_isoform": (
+            {
+                "name": short_label,
+                "transcript_id": shortest["transcript_id"],
+                "aa_length": shortest["aa_length"],
+                "pct_of_canonical": round(frac * 100) if frac is not None else None,
+            }
+            if shortest
+            else None
+        ),
         "isoform_specificity_risk": risk,
-        "message": (f"{len(isoforms)} protein-coding isoforms ({span[0]}-{span[1]} aa). "
-                    "Confirm the model expresses the catalytic-domain-containing "
-                    "isoform, not a truncated form." if risk == "high"
-                    else "Isoform choice unlikely to change the readout."),
+        "message": message,
     }
