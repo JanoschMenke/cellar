@@ -162,8 +162,10 @@ live Sanger data (SIDM id, available datasets, KRAS G12C, …). A `gene_dependen
 KRAS a CRISPR dependency in MIA PaCa-2?"* — returns the gene-effect score from the Sanger/Broad
 Cancer Dependency Map, and a `cell_line_provenance` tool adds Cellosaurus identity/reliability
 checks — *"Is the KB cell line problematic?"* returns its CVCL accession, the contamination flag,
-supplier catalogue numbers, and cross-refs to SIDM/DepMap. Data sources plug into the agent as
-additional `Tool`s (registered in `tools/registry.py`).
+supplier catalogue numbers, and cross-refs to SIDM/DepMap. Adding a data source is drop-in:
+create a `tools/<source>.py` with a `Tool` subclass and it is **auto-discovered** by
+`tools/registry.py` — no central registration. Set `include_in_agent = False` on a tool to keep
+it out of the agent (e.g. the `count_characters` smoke-test tool).
 
 Environment overrides: `CELLAR_PROVIDER` (`direct_api` | `bedrock`), `CELLAR_MODEL_NAME`,
 `AWS_REGION`.
