@@ -6,14 +6,9 @@ from dotenv import find_dotenv, load_dotenv, set_key
 
 from cellar.agents.console_agent import ConsoleAgent
 from cellar.config import ModelProvider, Settings, load_settings
+from cellar.prompts.matchmaker import MATCHMAKER_SYSTEM_PROMPT
 from cellar.services.llm import LlmClient, build_client
-from cellar.tools.base import Tool
-from cellar.tools.cell_models import CellModelGeneMutationsTool, FindCellModelTool
-from cellar.tools.text import CountCharactersTool
-
-
-def _build_tools() -> list[Tool]:
-    return [CountCharactersTool(), FindCellModelTool(), CellModelGeneMutationsTool()]
+from cellar.tools.registry import build_matchmaker_tools
 
 
 def _prompt_for_api_key() -> str | None:
@@ -57,7 +52,12 @@ def main() -> None:
     if client is None:
         return
 
-    agent = ConsoleAgent(client=client, settings=settings, tools=_build_tools())
+    agent = ConsoleAgent(
+        client=client,
+        settings=settings,
+        tools=build_matchmaker_tools(),
+        system=MATCHMAKER_SYSTEM_PROMPT,
+    )
 
     print(f"cellar console agent — provider {settings.provider}, model {settings.model_name}")
     print("Type a message, or 'exit' to quit.\n")

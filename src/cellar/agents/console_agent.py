@@ -1,3 +1,4 @@
+from anthropic import NOT_GIVEN
 from anthropic.types import Message, MessageParam
 
 from cellar.config import Settings
@@ -6,10 +7,17 @@ from cellar.tools.base import Tool
 
 
 class ConsoleAgent:
-    def __init__(self, client: LlmClient, settings: Settings, tools: list[Tool]) -> None:
+    def __init__(
+        self,
+        client: LlmClient,
+        settings: Settings,
+        tools: list[Tool],
+        system: str | None = None,
+    ) -> None:
         self._client = client
         self._settings = settings
         self._tools_by_name = {tool.name: tool for tool in tools}
+        self._system = system or NOT_GIVEN
         self._transcript: list[MessageParam] = []
 
     def send(self, user_message: str) -> str:
@@ -22,6 +30,7 @@ class ConsoleAgent:
                 model=self._settings.model_name,
                 max_tokens=self._settings.max_output_tokens,
                 thinking={"type": "adaptive"},
+                system=self._system,
                 tools=[tool.to_api_schema() for tool in self._tools_by_name.values()],
                 messages=self._transcript,
             )

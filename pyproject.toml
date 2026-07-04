@@ -6,12 +6,15 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "anthropic[bedrock]>=0.116.0",
+    "fastapi>=0.139.0",
     "pydantic>=2.13.4",
     "python-dotenv>=1.2.2",
+    "uvicorn>=0.50.0",
 ]
 
 [project.scripts]
 cellar = "cellar.cli:main"
+cellar-web = "cellar.web.server:main"
 
 [build-system]
 requires = ["hatchling"]
