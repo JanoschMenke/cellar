@@ -17,7 +17,8 @@ The Model Matchmaker follows the repo's `src/cellar/` layout (see [CLAUDE.md](./
 external-data and LLM-derivation modules live under `services/`, deterministic capabilities
 under `tools/`, the shared data vocabulary under `schemas/`, and cached evidence under `data/`.
 
-- `services/retrieval.py`  — live clients (Open Targets, Cellosaurus disease search)
+- `services/retrieval.py`  — legacy live helpers (Open Targets + Cellosaurus disease search) used by the demo
+- `services/open_targets.py` — Open Targets GraphQL client: target–disease association + per-evidence-type breakdown, tractability, disease target leaderboard (the "underrated target" signal)
 - `services/cellosaurus.py` — Cellosaurus client: cell-line identity, provenance/reliability (problematic-line flags), supplier catalogue numbers, and cross-refs (CVCL → SIDM/DepMap/ATCC)
 - `services/cell_model_passports.py` — Sanger Cell Model Passports (DepMap) JSON:API client: model/gene lookup, per-model datasets, matchmaker fact sheets
 - `services/dependency.py` — CRISPR gene-dependency ("is my target essential here") from the Sanger/Broad integrated Cancer Dependency Map (Project Score `crispr_ko` gene-effect); DepMap-equivalent, queried live via the CMP API
