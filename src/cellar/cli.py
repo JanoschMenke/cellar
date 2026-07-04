@@ -8,11 +8,12 @@ from cellar.agents.console_agent import ConsoleAgent
 from cellar.config import ModelProvider, Settings, load_settings
 from cellar.services.llm import LlmClient, build_client
 from cellar.tools.base import Tool
+from cellar.tools.cell_models import CellModelGeneMutationsTool, FindCellModelTool
 from cellar.tools.text import CountCharactersTool
 
 
 def _build_tools() -> list[Tool]:
-    return [CountCharactersTool()]
+    return [CountCharactersTool(), FindCellModelTool(), CellModelGeneMutationsTool()]
 
 
 def _prompt_for_api_key() -> str | None:

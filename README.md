@@ -153,6 +153,12 @@ The second question is the interesting one: the agent decides to call the `count
 tool, the loop runs the tool locally, feeds the result back, and Claude answers with it — the
 same deterministic-tool pattern the whole project is built on. Type `exit` (or Ctrl-D) to quit.
 
+The agent also carries **Cell Model Passports tools** backed by `services/cell_model_passports.py`.
+Ask it something like *"Is MIA PaCa-2 in Cell Model Passports, and does it carry a KRAS
+mutation?"* and it calls `find_cell_model` / `cell_model_gene_mutations`, then answers from the
+live Sanger data (SIDM id, available datasets, KRAS G12C, …). This is the first data source
+wired through the agent; more sources plug in the same way as additional `Tool`s.
+
 Environment overrides: `CELLAR_PROVIDER` (`direct_api` | `bedrock`), `CELLAR_MODEL_NAME`,
 `AWS_REGION`.
 
