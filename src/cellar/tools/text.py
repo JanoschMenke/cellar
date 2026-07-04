@@ -3,6 +3,7 @@ from cellar.tools.base import Tool, ToolResult
 
 class CountCharactersTool(Tool):
     name = "count_characters"
+    include_in_agent = False
     description = (
         "Count the number of characters in a piece of text. "
         "Use this whenever the user asks how long a string or piece of text is."

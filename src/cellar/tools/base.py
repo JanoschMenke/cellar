@@ -12,6 +12,7 @@ class Tool(ABC):
     name: str
     description: str
     input_schema: dict[str, object]
+    include_in_agent: bool = True
 
     @abstractmethod
     def run(self, arguments: dict[str, object]) -> ToolResult: ...
