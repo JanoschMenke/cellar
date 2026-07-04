@@ -22,6 +22,7 @@ under `tools/`, the shared data vocabulary under `schemas/`, and cached evidence
 - `services/cell_model_passports.py` — Sanger Cell Model Passports (DepMap) JSON:API client: model/gene lookup, per-model datasets, matchmaker fact sheets
 - `services/dependency.py` — CRISPR gene-dependency ("is my target essential here") from the Sanger/Broad integrated Cancer Dependency Map (Project Score `crispr_ko` gene-effect); DepMap-equivalent, queried live via the CMP API
 - `services/proteomics.py` — tiered protein-evidence synthesizer + MS-absence guard; live PRIDE + HPA
+- `services/hpa.py` — Human Protein Atlas client: subcellular localization, tissue/cell-type expression, mRNA-vs-protein discordance, antibody reliability, and cancer prognostic significance (TCGA + validation cohorts)
 - `services/isoforms.py`   — Ensembl protein-coding isoform enumeration + splicing-risk flag
 - `services/pathway.py`    — STRING partners + literature-derived relation map + science gate
 - `services/mechanism.py`  — MoA -> culture-context layer ("right target, wrong model" check)
@@ -162,8 +163,11 @@ live Sanger data (SIDM id, available datasets, KRAS G12C, …). A `gene_dependen
 KRAS a CRISPR dependency in MIA PaCa-2?"* — returns the gene-effect score from the Sanger/Broad
 Cancer Dependency Map, and a `cell_line_provenance` tool adds Cellosaurus identity/reliability
 checks — *"Is the KB cell line problematic?"* returns its CVCL accession, the contamination flag,
-supplier catalogue numbers, and cross-refs to SIDM/DepMap. Adding a data source is drop-in:
-create a `tools/<source>.py` with a `Tool` subclass and it is **auto-discovered** by
+supplier catalogue numbers, and cross-refs to SIDM/DepMap; and a `protein_atlas_profile` tool —
+*"Does ZDHHC20 have mRNA-vs-protein discordance, and is it prognostic in pancreatic cancer?"* —
+returns the Human Protein Atlas localization, expression, antibody reliability and cancer
+prognostic evidence. Adding a data source is drop-in: create a `tools/<source>.py` with a `Tool`
+subclass and it is **auto-discovered** by
 `tools/registry.py` — no central registration. Set `include_in_agent = False` on a tool to keep
 it out of the agent (e.g. the `count_characters` smoke-test tool).
 
