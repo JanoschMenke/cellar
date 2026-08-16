@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass
 from typing import cast
 
@@ -191,21 +192,77 @@ def _seed_for(
     )
 
 
+_MODEL_LOOKUP_TOOLS: tuple[tuple[str, str], ...] = (
+    (ToolName.FIND_CELL_MODEL, "name"),
+    (ToolName.CELL_LINE_PROVENANCE, "name"),
+    (ToolName.CELL_MODEL_GENE_MUTATIONS, "model"),
+    (ToolName.GENE_DEPENDENCY, "model"),
+)
+_IDENTITY_KEYS = ("sidm_id", "model_id", "accession")
+_SYNONYM_KEYS = ("names", "model_names")
+
+
+def _identity_tokens(record: _DictRecord, input_key: str) -> set[str]:
+    tokens: set[str] = set()
+    raw = record.input.get(input_key)
+    if isinstance(raw, str):
+        tokens.add(_norm(raw))
+    for key in _IDENTITY_KEYS:
+        value = record.data.get(key)
+        if isinstance(value, str) and value:
+            tokens.add(_norm(value))
+    for key in _SYNONYM_KEYS:
+        for value in cast("list[object]", record.data.get(key) or []):
+            if isinstance(value, str) and value:
+                tokens.add(_norm(value))
+    cross_ids = record.data.get("cross_ids")
+    if isinstance(cross_ids, dict):
+        for value in cast("dict[str, object]", cross_ids).values():
+            if isinstance(value, str) and value:
+                tokens.add(_norm(value))
+    return {token for token in tokens if token}
+
+
+def _merge(groups: dict[str, str], tokens: set[str]) -> None:
+    resolved = {_resolve(groups, token) for token in tokens}
+    leader = sorted(resolved)[0]
+    for token in resolved:
+        groups[token] = leader
+
+
+def _resolve(groups: dict[str, str], token: str) -> str:
+    while groups.get(token, token) != token:
+        token = groups[token]
+    return token
+
+
+def _identity_groups(store: EvidenceStore) -> dict[str, str]:
+    groups: dict[str, str] = {}
+    for tool, input_key in _MODEL_LOOKUP_TOOLS:
+        for record in _dict_records(store, tool):
+            tokens = _identity_tokens(record, input_key)
+            if tokens:
+                _merge(groups, tokens)
+    return groups
+
+
+def _looks_like_database_id(name: str) -> bool:
+    return bool(re.fullmatch(r"(sidm|cvcl|ach)\d+", _norm(name)))
+
+
 def _gathered_model_names(store: EvidenceStore) -> list[str]:
-    names: list[str] = []
-    seen: set[str] = set()
-    for tool, key in (
-        (ToolName.FIND_CELL_MODEL, "name"),
-        (ToolName.CELL_LINE_PROVENANCE, "name"),
-        (ToolName.CELL_MODEL_GENE_MUTATIONS, "model"),
-        (ToolName.GENE_DEPENDENCY, "model"),
-    ):
+    groups = _identity_groups(store)
+    by_identity: dict[str, list[str]] = {}
+    for tool, key in _MODEL_LOOKUP_TOOLS:
         for record in store.by_tool(tool):
             raw = record.input.get(key)
-            if isinstance(raw, str) and raw.strip() and _norm(raw) not in seen:
-                seen.add(_norm(raw))
-                names.append(raw.strip())
-    return names
+            if not isinstance(raw, str) or not raw.strip():
+                continue
+            by_identity.setdefault(_resolve(groups, _norm(raw)), []).append(raw.strip())
+    return [
+        next((name for name in candidates if not _looks_like_database_id(name)), candidates[0])
+        for candidates in by_identity.values()
+    ]
 
 
 def build_panel_from_evidence(store: EvidenceStore, target_symbol: str) -> list[SeedModel]:
