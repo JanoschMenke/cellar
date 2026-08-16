@@ -16,9 +16,12 @@ _ISOFORM_SUMMARY: dict[str, object] = {
     "isoform_specificity_risk": "high",
     "message": "Dominant isoform lacks catalytic domain in this tissue.",
 }
+_PROTEIN_NOTE = (
+    "HPA protein 'Detected in many', subcellular=['Nucleoplasm']; PRIDE MS projects n=12 "
+    "(tier=moderate). No report of the protein measured in this model."
+)
 _PROTEOMICS_SUMMARY: dict[str, object] = {
     "mrna_protein_discordant": True,
-    "modalities": {"note": "Route via MS/CPTAC; olink not available."},
     "disease_protein_prognostic": {
         "Pancreatic cancer - protein X": {"is_prognostic": True, "prognostic type": "unfavorable"}
     },
@@ -139,7 +142,7 @@ def _candidate(*, passed_science_gate: bool) -> ModelCandidate:
 _EXPECTED_CONTEXT_NOTES = [
     "mRNA is broadly expressed but protein is not — do not rely on RNA-seq alone; confirm "
     "protein by WB/IF in your lot.",
-    "Proteomics routing: Route via MS/CPTAC; olink not available.",
+    "Protein evidence: " + _PROTEIN_NOTE,
     "Isoform caveat: Dominant isoform lacks catalytic domain in this tissue.",
     "Protein-level disease signal: protein X (unfavorable).",
     "Mechanism needs three_d_architecture: embed in matrigel — invasion assay",
@@ -183,7 +186,8 @@ _EXPECTED_PASS_MARKDOWN = (
     "**Context for your decision**\n"
     "  • mRNA is broadly expressed but protein is not — do not rely on RNA-seq alone; confirm "
     "protein by WB/IF in your lot.\n"
-    "  • Proteomics routing: Route via MS/CPTAC; olink not available.\n"
+    "  • Protein evidence: HPA protein 'Detected in many', subcellular=['Nucleoplasm']; "
+    "PRIDE MS projects n=12 (tier=moderate). No report of the protein measured in this model.\n"
     "  • Isoform caveat: Dominant isoform lacks catalytic domain in this tissue.\n"
     "  • Protein-level disease signal: protein X (unfavorable).\n"
     "  • Mechanism needs three_d_architecture: embed in matrigel — invasion assay\n"
@@ -232,7 +236,8 @@ _EXPECTED_REJECT_MARKDOWN = (
     "**Context for your decision**\n"
     "  • mRNA is broadly expressed but protein is not — do not rely on RNA-seq alone; confirm "
     "protein by WB/IF in your lot.\n"
-    "  • Proteomics routing: Route via MS/CPTAC; olink not available.\n"
+    "  • Protein evidence: HPA protein 'Detected in many', subcellular=['Nucleoplasm']; "
+    "PRIDE MS projects n=12 (tier=moderate). No report of the protein measured in this model.\n"
     "  • Isoform caveat: Dominant isoform lacks catalytic domain in this tissue.\n"
     "  • Protein-level disease signal: protein X (unfavorable).\n"
     "  • Mechanism needs three_d_architecture: embed in matrigel — invasion assay\n"
@@ -251,6 +256,7 @@ def test_render_card_golden_markdown_pass_gate_byte_identical() -> None:
         _PROTEOMICS_SUMMARY,
         _pathway(),
         _mechanism(),
+        _PROTEIN_NOTE,
     )
     assert card.rendered_markdown == _EXPECTED_PASS_MARKDOWN
     assert card.context_notes == _EXPECTED_CONTEXT_NOTES
@@ -266,6 +272,7 @@ def test_render_card_golden_markdown_reject_gate_byte_identical() -> None:
         _PROTEOMICS_SUMMARY,
         _pathway(),
         _mechanism(),
+        _PROTEIN_NOTE,
     )
     assert card.rendered_markdown == _EXPECTED_REJECT_MARKDOWN
     assert card.context_notes == _EXPECTED_CONTEXT_NOTES

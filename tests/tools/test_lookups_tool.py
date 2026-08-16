@@ -1,7 +1,7 @@
 import json
 from unittest.mock import patch
 
-from cellar.schemas.derivation import HpaProteinEvidence, ProteinModalities, ProteinSynthesis
+from cellar.schemas.derivation import HpaProteinEvidence, ProteinSynthesis
 from cellar.schemas.sources import IsoformRiskSummary, IsoformSpecificityRisk, StringPartner
 from cellar.services.sources import isoforms as isoforms_service
 from cellar.services.sources import string_db
@@ -15,7 +15,6 @@ _FAKE_HPA_EVIDENCE = HpaProteinEvidence(
     mrna_protein_discordant=False,
     protein_cell_type_intensity=None,
     disease_protein_prognostic={},
-    modalities=ProteinModalities(MS_tissue_tumor=True, olink_somascan_plasma=False, note=""),
 )
 
 _FAKE_PROTEIN_SYNTHESIS = ProteinSynthesis(

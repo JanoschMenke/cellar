@@ -1,6 +1,6 @@
 from unittest.mock import patch
 
-from cellar.schemas.derivation import HpaProteinEvidence, ProteinModalities, ProteinSynthesis
+from cellar.schemas.derivation import HpaProteinEvidence, ProteinSynthesis
 from cellar.schemas.matchmaker import (
     MatchmakerQuery,
     ModelTier,
@@ -141,9 +141,6 @@ def _run_golden_matchmaker() -> str:
                 mrna_protein_discordant=False,
                 protein_cell_type_intensity=None,
                 disease_protein_prognostic={},
-                modalities=ProteinModalities(
-                    MS_tissue_tumor=True, olink_somascan_plasma=False, note=""
-                ),
             ),
         ),
         patch(
@@ -197,7 +194,7 @@ _GOLDEN_REPORT_JSON = (
     'false,"ot_direct_association":0.42,"n_sourceable_models":0,"n_problematic_models":0,'
     '"isoform_n_protein_coding":0,"isoform_aa_span":"","isoform_specificity_risk":"",'
     '"mrna_protein_discordant":false,"protein_present":0.7,"protein_confidence":"0.8",'
-    '"ms_absence_guard_applied":false,"pride_n_projects":0,"proteomics_modality_note":"",'
+    '"ms_absence_guard_applied":false,"pride_n_projects":0,"protein_evidence_note":"",'
     '"string_top_partners":[]},"relations":[{"gene":"GOLGA7","relation_type":'
     '"stabilizer_accessory","gates_model_selection":true,"evidence_pmids":["11111111"]},'
     '{"gene":"KRAS","relation_type":"substrate","gates_model_selection":false,'

@@ -57,14 +57,6 @@ EXPECTED_SIGNAL_JSON: dict[str, object] = {
                 "prognostic type": "unfavourable",
             }
         },
-        "modalities": {
-            "MS_tissue_tumor": True,
-            "olink_somascan_plasma": False,
-            "note": (
-                "intracellular/membrane target -> Olink/SomaScan will NOT detect it; "
-                "use MS-based (CPTAC/HPA) protein evidence instead"
-            ),
-        },
     },
     "pride": {
         "uniprot": "P12345",
@@ -112,14 +104,6 @@ EXPECTED_NO_SIGNAL_JSON: dict[str, object] = {
                 "is_prognostic": False,
                 "prognostic type": "NA",
             }
-        },
-        "modalities": {
-            "MS_tissue_tumor": True,
-            "olink_somascan_plasma": False,
-            "note": (
-                "intracellular/membrane target -> Olink/SomaScan will NOT detect it; "
-                "use MS-based (CPTAC/HPA) protein evidence instead"
-            ),
         },
     },
     "pride": {

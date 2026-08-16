@@ -68,6 +68,25 @@ def _seed_to_candidate(seed: SeedModel) -> ModelCandidate:
     )
 
 
+def _protein_note_for(
+    target_symbol: str,
+    model_name: str,
+    hpa_evidence: HpaProteinEvidence | None,
+    pride: dict[str, object] | None,
+) -> str:
+    synthesis: ProteinSynthesis | None = _safe(
+        lambda: proteomics.synthesize_protein_evidence(
+            hpa=hpa_evidence,
+            pride=pride,
+            cptac=proteomics.cptac_tumor_quant(target_symbol),
+            depmap=proteomics.depmap_proteomics(target_symbol),
+            cell_line=model_name,
+        ),
+        None,
+    )
+    return proteomics.protein_evidence_note(synthesis)
+
+
 def _build_facts(
     query: MatchmakerQuery,
     target_id: str | None,
@@ -114,9 +133,7 @@ def _build_facts(
             protein_evidence.ms_absence_guard_applied if protein_evidence else False
         ),
         pride_n_projects=int(cast("int | str", (pride or {}).get("n_projects", 0) or 0)),
-        proteomics_modality_note=str(
-            proteomics_summary.modalities.note if proteomics_summary else ""
-        ),
+        protein_evidence_note=proteomics.protein_evidence_note(protein_evidence),
         string_top_partners=[p.partner for p in partners[:5]],
     )
 
@@ -196,7 +213,11 @@ def run_matchmaker(
     candidates = [_seed_to_candidate(seed) for seed in seeds]
     pathway_by_model: dict[str, PathwayCoherence] = {}
     mechanism_by_model: dict[str, MoaContext] = {}
+    protein_note_by_model: dict[str, str] = {}
     for seed, candidate in zip(seeds, candidates, strict=True):
+        protein_note_by_model[candidate.name] = _protein_note_for(
+            symbol, seed.name, hpa_evidence, pride
+        )
         pw = pathway.pathway_coherence(
             seed.coexpression,
             relations,
@@ -230,6 +251,7 @@ def run_matchmaker(
             proteomics_summary,
             pathway_by_model.get(candidate.name),
             mechanism_by_model.get(candidate.name),
+            protein_note_by_model.get(candidate.name, ""),
         )
         for rank_index, candidate in enumerate(rank_result.ranked, 1)
     ]

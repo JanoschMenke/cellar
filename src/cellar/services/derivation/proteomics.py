@@ -2,8 +2,8 @@ import json
 import os
 from typing import cast
 
-from cellar.schemas.derivation import HpaProteinEvidence, ProteinModalities, ProteinSynthesis
-from cellar.schemas.domain import MEMBRANE_HINTS, SECRETED_HINTS, TIER_WEIGHT
+from cellar.schemas.derivation import HpaProteinEvidence, ProteinSynthesis
+from cellar.schemas.domain import TIER_WEIGHT
 from cellar.schemas.matchmaker import EvidenceTier, MsDetectabilityTier
 from cellar.schemas.scoring import (
     CONF_BASE,
@@ -23,25 +23,16 @@ from cellar.schemas.services import McpTool
 from cellar.services.sources import hpa
 
 
-def valid_proteomics_modalities(
-    subcellular_locations: list[str], protein_class: list[str] | None = None
-) -> dict[str, object]:
-    loc = " ".join(subcellular_locations).lower()
-    cls = " ".join(protein_class or []).lower()
-    membrane_or_intracellular = any(h in loc for h in MEMBRANE_HINTS) or "membrane" in cls
-    secreted = (
-        any(h in loc for h in SECRETED_HINTS) or "secreted" in cls
-    ) and not membrane_or_intracellular
-    return {
-        "MS_tissue_tumor": True,
-        "olink_somascan_plasma": secreted,
-        "note": (
-            "target is secreted/extracellular -> Olink/SomaScan plasma panels apply"
-            if secreted
-            else "intracellular/membrane target -> Olink/SomaScan will NOT detect it; "
-            "use MS-based (CPTAC/HPA) protein evidence instead"
-        ),
-    }
+def protein_evidence_note(synthesis: ProteinSynthesis | None) -> str:
+    if synthesis is None or not synthesis.provenance:
+        return ""
+    evidence = "; ".join(synthesis.provenance)
+    if EvidenceTier.MODEL_SPECIFIC in synthesis.per_tier:
+        return (
+            f"{evidence}. The protein has been reported measured in this model, so a "
+            "lysate-based protein assay is a demonstrated route here."
+        )
+    return f"{evidence}. No report of the protein measured in this model."
 
 
 def hpa_protein_evidence(ensembl_id: str, disease_hint: str = "Pancreatic") -> HpaProteinEvidence:
@@ -58,7 +49,6 @@ def hpa_protein_evidence(ensembl_id: str, disease_hint: str = "Pancreatic") -> H
         if k.startswith("Cancer prognostics") and disease_hint.lower() in k.lower()
     }
     protein_class = cast("list[str] | None", d.get("Protein class"))
-    modalities = valid_proteomics_modalities(subloc, protein_class)
     return HpaProteinEvidence(
         subcellular=subloc,
         protein_class=protein_class,
@@ -67,11 +57,6 @@ def hpa_protein_evidence(ensembl_id: str, disease_hint: str = "Pancreatic") -> H
         mrna_protein_discordant=discordant,
         protein_cell_type_intensity=d.get("Protein cell type specific Intensity"),
         disease_protein_prognostic=prog,
-        modalities=ProteinModalities(
-            MS_tissue_tumor=cast(bool, modalities["MS_tissue_tumor"]),
-            olink_somascan_plasma=cast(bool, modalities["olink_somascan_plasma"]),
-            note=cast(str, modalities["note"]),
-        ),
     )
 
 
@@ -146,11 +131,14 @@ def depmap_proteomics(
     }
 
 
-def olink_somascan_stub(gene: str, subcellular: list[str]) -> dict[str, object]:
-    v = valid_proteomics_modalities(subcellular)
-    if not v["olink_somascan_plasma"]:
-        return {"applicable": False, "reason": v["note"]}
-    return {"applicable": True, "note": "query Olink Explore / SomaScan panel for " + gene}
+_UNIPROT_EXISTENCE_SOURCE = "uniprot_protein_existence"
+
+
+def _ms_provenance(pride: dict[str, object], n_projects: int, tier: MsDetectabilityTier) -> str:
+    if pride.get("source") == _UNIPROT_EXISTENCE_SOURCE:
+        level = pride.get("protein_existence_level")
+        return f"UniProt protein existence level {level} (protein-level evidence)"
+    return f"PRIDE MS projects n={n_projects} (tier={tier})"
 
 
 def _is_ms_hard_class(protein_class: list[str] | None, subcellular: list[str] | None) -> bool:
@@ -228,7 +216,7 @@ def synthesize_protein_evidence(
         tier = MsDetectabilityTier(str(pride["tier"]))
         ms_sig = MS_TIER_SIGNAL[tier]
         per_tier[EvidenceTier.MS_DETECTABILITY] = pride
-        provenance.append(f"PRIDE MS projects n={n} (tier={tier})")
+        provenance.append(_ms_provenance(pride, n, tier))
         if tier in (MsDetectabilityTier.UNDETECTED, MsDetectabilityTier.LOW):
             if ms_hard:
                 caveats.append(

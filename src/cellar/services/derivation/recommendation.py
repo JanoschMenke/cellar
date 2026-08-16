@@ -174,6 +174,7 @@ def _context_notes(
     proteomics_summary: dict[str, object],
     isoform_summary: dict[str, object],
     mechanism: MoaContext | None,
+    protein_note: str = "",
 ) -> list[str]:
     context: list[str] = []
     if proteomics_summary.get("mrna_protein_discordant"):
@@ -181,9 +182,8 @@ def _context_notes(
             "mRNA is broadly expressed but protein is not — do not "
             "rely on RNA-seq alone; confirm protein by WB/IF in your lot."
         )
-    modalities = cast("dict[str, object]", proteomics_summary.get("modalities", {}))
-    if modalities.get("note"):
-        context.append("Proteomics routing: " + str(modalities["note"]))
+    if protein_note:
+        context.append("Protein evidence: " + protein_note)
     if isoform_summary.get("isoform_specificity_risk") == "high":
         context.append("Isoform caveat: " + str(isoform_summary["message"]))
     disease_protein_prognostic = cast(
@@ -213,6 +213,7 @@ def build_card(
     proteomics_summary: dict[str, object],
     pathway: PathwayCoherence | None,
     mechanism: MoaContext | None,
+    protein_note: str = "",
 ) -> RecommendationCard:
     assert candidate.scores is not None
     scores = candidate.scores.model_dump()
@@ -251,7 +252,7 @@ def build_card(
         reasons=[d for d in fact_dims if d.value >= PRO_MIN],
         watch_outs=[d for d in fact_dims if d.value < PRO_MIN],
         dimensions=dimensions,
-        context_notes=_context_notes(proteomics_summary, isoform_summary, mechanism),
+        context_notes=_context_notes(proteomics_summary, isoform_summary, mechanism, protein_note),
         science_gate=_science_gate(pathway),
         mechanism=mechanism_fit,
         sourcing=Sourcing(
