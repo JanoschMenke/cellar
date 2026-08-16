@@ -7,10 +7,12 @@ evidence, and CRO/supplier sourcing. A thin Claude agent decides which determini
 call and narrates the result, but the ranked models, their scores, and their provenance all come
 from plain code rather than from the model's own prose.
 
+<img width="583" height="787" alt="image" src="https://github.com/user-attachments/assets/713127a8-7920-45bc-9e6e-687d0288a753" />
+
+
 It started life as a hackathon project, so treat it as a useful prototype rather than a polished
 product (see the honest notes below).
 
-Worked example: **ZDHHC20 in PDAC** (pancreatic ductal adenocarcinoma).
 
 ## Good to know
 
