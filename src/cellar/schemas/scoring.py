@@ -92,4 +92,25 @@ AGGREGATE_MRNA_EXPRESSED_SEED = 0.6
 AGGREGATE_GENETIC_TRACTABLE_AVAILABLE = 0.9
 AGGREGATE_GENETIC_TRACTABLE_DEFAULT = 0.6
 
+PROPOSED_TIER_PROFILE: dict[str, dict[str, float]] = {
+    "organoid": {
+        "mrna_expressed": 0.75,
+        "disease_features_match": 0.85,
+        "genetic_tractable": 0.65,
+        "provenance_ok": 0.9,
+    },
+    "coculture": {
+        "mrna_expressed": 0.7,
+        "disease_features_match": 0.85,
+        "genetic_tractable": 0.5,
+        "provenance_ok": 0.85,
+    },
+    "in_vivo": {
+        "mrna_expressed": 0.8,
+        "disease_features_match": 0.9,
+        "genetic_tractable": 0.6,
+        "provenance_ok": 0.95,
+    },
+}
+
 DEPENDENCY_SIGNAL_DIVISOR = 2.0

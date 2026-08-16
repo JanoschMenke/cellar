@@ -31,7 +31,7 @@ def _all_tools() -> list[Tool[_EmptyInput]]:
     return [_DummyTool(member) for member in ToolName]
 
 
-def test_verifier_excludes_exactly_the_three_recommendation_tools() -> None:
+def test_verifier_excludes_exactly_the_panel_mutating_tools() -> None:
     agent = VerifierAgent(
         client=cast(Any, object()),
         settings=Settings(),
@@ -44,6 +44,7 @@ def test_verifier_excludes_exactly_the_three_recommendation_tools() -> None:
         ToolName.BUILD_RECOMMENDATIONS,
         ToolName.RECOMMEND_MODELS,
         ToolName.ANNOTATE_RECOMMENDATIONS,
+        ToolName.PROPOSE_MODEL_CANDIDATE,
     } == VERIFIER_EXCLUDED_TOOLS
 
 

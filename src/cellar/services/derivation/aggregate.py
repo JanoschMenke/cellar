@@ -18,6 +18,7 @@ from cellar.schemas.scoring import (
     AGGREGATE_PRIOR_USE_DIVISOR,
     AGGREGATE_PROTEIN_PRESENT_DEFAULT,
     MAX_CANDIDATES,
+    PROPOSED_TIER_PROFILE,
 )
 from cellar.schemas.tool_names import ToolName
 from cellar.services.derivation.matchmaker import run_matchmaker
@@ -208,23 +209,71 @@ def _gathered_model_names(store: EvidenceStore) -> list[str]:
     return names
 
 
+def _proposed_records(store: EvidenceStore) -> list[dict[str, object]]:
+    by_name: dict[str, dict[str, object]] = {}
+    for record in _dict_records(store, ToolName.PROPOSE_MODEL_CANDIDATE):
+        data = record.data
+        name = str(data.get("name") or "").strip()
+        tier = str(data.get("tier") or "")
+        if not name or tier not in PROPOSED_TIER_PROFILE:
+            continue
+        by_name[_norm(name)] = data
+    return list(by_name.values())
+
+
+def _proposed_seed(
+    store: EvidenceStore,
+    proposal: dict[str, object],
+    target_symbol: str,
+    protein_present: float,
+    isoform_match: float,
+) -> SeedModel:
+    name = str(proposal["name"]).strip()
+    tier = ModelTier(str(proposal["tier"]))
+    profile = PROPOSED_TIER_PROFILE[str(tier)]
+    return SeedModel(
+        name=name,
+        tier=tier,
+        source=str(proposal.get("supplier_or_cro") or ""),
+        catalog_url=str(proposal.get("sourcing_url") or ""),
+        mrna_expressed=profile["mrna_expressed"],
+        protein_present=protein_present,
+        isoform_match=isoform_match,
+        disease_features_match=profile["disease_features_match"],
+        dependency_signal=_dependency_signal(store, _norm(target_symbol), _norm(name)),
+        genetic_tractable=profile["genetic_tractable"],
+        provenance_ok=profile["provenance_ok"],
+        prior_use=_prior_use(store, _norm(name)),
+        coexpression={},
+        catalytic_domain_ok=True,
+    )
+
+
 def build_panel_from_evidence(store: EvidenceStore, target_symbol: str) -> list[SeedModel]:
     protein_present = _target_protein_present(store)
     isoform_match = _target_isoform_match(store)
-    gathered = _gathered_model_names(store)
-    return [
+    proposed = [
+        _proposed_seed(store, proposal, target_symbol, protein_present, isoform_match)
+        for proposal in _proposed_records(store)
+    ][:MAX_CANDIDATES]
+    taken = {_norm(seed.name) for seed in proposed}
+    gathered = [name for name in _gathered_model_names(store) if _norm(name) not in taken]
+    room = MAX_CANDIDATES - len(proposed)
+    lines = [
         _seed_for(store, name, target_symbol, protein_present, isoform_match)
-        for name in gathered[:MAX_CANDIDATES]
+        for name in gathered[:room]
     ]
+    return proposed + lines
 
 
 def _no_models_report(query: MatchmakerQuery) -> RecommendationReport:
     return RecommendationReport(
         query=query,
         verdict=(
-            f"No candidate cell-line models have been investigated for "
-            f"{query.target_symbol} in {query.disease}. Look up specific models with "
-            f"find_cell_model, gene_dependency, or cell_line_provenance, then aggregate again."
+            f"No candidate models have been investigated for "
+            f"{query.target_symbol} in {query.disease}. Look up specific cell lines with "
+            f"find_cell_model, gene_dependency, or cell_line_provenance, add any organoid, "
+            f"co-culture or in-vivo model with propose_model_candidate, then aggregate again."
         ),
         in_vivo_recommended=False,
         facts=FactsSummary(),
@@ -359,7 +408,11 @@ def _evidence_rows(
 
 
 def _is_purchasable(store: EvidenceStore, name: str) -> bool:
-    prov = _rec_for(store, ToolName.CELL_LINE_PROVENANCE, "name", _norm(name))
+    norm = _norm(name)
+    for proposal in _proposed_records(store):
+        if _norm(str(proposal.get("name", ""))) == norm:
+            return bool(proposal.get("sourcing_url"))
+    prov = _rec_for(store, ToolName.CELL_LINE_PROVENANCE, "name", norm)
     listings = prov.get("commercial_listings") or prov.get("catalog") or {}
     return bool(listings)
 

@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ConfigDict, Field
 
-from cellar.schemas.matchmaker import QuestionType
+from cellar.schemas.matchmaker import ProposableTier, QuestionType
 
 
 class LiteratureSearchInput(BaseModel):
@@ -90,6 +90,39 @@ class CellModelGeneMutationsInput(BaseModel):
 class CellLineProvenanceInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
     name: str = Field(description="Cell line name, e.g. 'PANC-1' or 'MIA PaCa-2'.")
+
+
+class ProposeModelCandidateInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    name: str = Field(
+        description=(
+            "Name of the model class to rank, e.g. 'Patient-derived intestinal organoid' "
+            "or 'Tumour organoid + autologous T-cell co-culture'."
+        )
+    )
+    tier: ProposableTier = Field(
+        description=(
+            "Model class: 'organoid' for 3D patient-derived or iPSC-derived organoids, "
+            "'coculture' when a second cell type (immune, stromal) is required, "
+            "'in_vivo' for GEMM/PDX. 2D lines are not proposable; look those up with "
+            "find_cell_model or cell_line_provenance instead."
+        )
+    )
+    basis: str = Field(
+        description=(
+            "One sentence on the context this model provides that the catalogue cell "
+            "lines cannot, e.g. '3D crypt architecture is required for the ATOH1 "
+            "differentiation gradient'."
+        )
+    )
+    supplier_or_cro: str = Field(
+        default="",
+        description="Supplier or CRO found via web_search, e.g. 'STEMCELL Technologies'.",
+    )
+    sourcing_url: str = Field(
+        default="",
+        description="Product or service URL found via web_search, so the card can cite it.",
+    )
 
 
 class CountCharactersInput(BaseModel):

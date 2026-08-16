@@ -19,6 +19,12 @@ class ModelTier(StrEnum):
     IN_VIVO = "in_vivo"
 
 
+class ProposableTier(StrEnum):
+    ORGANOID = "organoid"
+    COCULTURE = "coculture"
+    IN_VIVO = "in_vivo"
+
+
 class GateStatus(StrEnum):
     PASSED = "passed"
     SCIENCE_GATE_FAILED = "science_gate_failed"

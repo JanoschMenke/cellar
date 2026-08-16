@@ -13,6 +13,7 @@ _EXPECTED_NAMES = {
     "find_cell_model",
     "cell_model_gene_mutations",
     "cell_line_provenance",
+    "propose_model_candidate",
     "recommend_models",
     "count_characters",
 }

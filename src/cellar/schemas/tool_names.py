@@ -14,12 +14,18 @@ class ToolName(StrEnum):
     FIND_CELL_MODEL = "find_cell_model"
     CELL_MODEL_GENE_MUTATIONS = "cell_model_gene_mutations"
     CELL_LINE_PROVENANCE = "cell_line_provenance"
+    PROPOSE_MODEL_CANDIDATE = "propose_model_candidate"
     RECOMMEND_MODELS = "recommend_models"
     COUNT_CHARACTERS = "count_characters"
 
 
 VERIFIER_EXCLUDED_TOOLS: frozenset[ToolName] = frozenset(
-    {ToolName.BUILD_RECOMMENDATIONS, ToolName.RECOMMEND_MODELS, ToolName.ANNOTATE_RECOMMENDATIONS}
+    {
+        ToolName.BUILD_RECOMMENDATIONS,
+        ToolName.RECOMMEND_MODELS,
+        ToolName.ANNOTATE_RECOMMENDATIONS,
+        ToolName.PROPOSE_MODEL_CANDIDATE,
+    }
 )
 
 
@@ -133,6 +139,23 @@ TOOL_DESCRIPTIONS: dict[ToolName, str] = {
         "or other CRO-built models NOT in a commercial cell-line catalog, this tool "
         "returns found=false — use web_search instead to find current supplier/CRO "
         "sourcing information for those."
+    ),
+    ToolName.PROPOSE_MODEL_CANDIDATE: (
+        "Add a non-catalogue model to the candidate panel so it gets ranked alongside the "
+        "cell lines. Cell lines enter the panel through find_cell_model / "
+        "cell_line_provenance / gene_dependency, but organoids, co-cultures and GEMM/PDX "
+        "in-vivo models are not in those databases, so without this tool they can never be "
+        "ranked and build_recommendations can only compare 2D lines. Use it whenever the "
+        "biology needs a context a 2D monolayer cannot provide (3D crypt/lumen "
+        "architecture, tumour-stroma, an immune compartment, vascular flow or systemic "
+        "PK), or whenever the cell lines you looked up are all being rejected for the same "
+        "contextual reason. Give the model class you actually want compared, for example "
+        "'patient-derived intestinal organoid' or 'tumour organoid + autologous T-cell "
+        "co-culture'. FIRST run web_search to find a real supplier or CRO offering it, then "
+        "pass that supplier and its URL here so the card carries citable sourcing — "
+        "cell_line_provenance does not cover these model types. The candidate is scored by "
+        "the same deterministic two-stage pipeline as every other model; you supply the "
+        "candidate and its sourcing, not its scores. Call this BEFORE build_recommendations."
     ),
     ToolName.RECOMMEND_MODELS: (
         "Rank in-vitro / in-vivo biological models for testing a target in a disease, "

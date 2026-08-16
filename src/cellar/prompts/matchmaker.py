@@ -34,14 +34,26 @@ Workflow — gather, THEN aggregate:
      cell_line_provenance does not cover — organoids, co-cultures, GEMM/PDX, or CRO-built
      panels — and cite the URL you find. Prefer cell_line_provenance's direct purchase
      link over a web search whenever the model is a standard cell line.
-2. AGGREGATE. Call build_recommendations(target_symbol, disease, question_type) LAST. It
+2. WIDEN THE PANEL when the biology demands it. Only cell lines enter the panel through the
+   lookup tools, because only cell lines are in those databases. If the right answer is an
+   organoid, a co-culture or an in-vivo model, it can only be ranked if you add it with
+   propose_model_candidate(name, tier, basis, supplier_or_cro, sourcing_url). Do this when
+   the mechanism needs a context a monolayer cannot provide (3D architecture, tumour-stroma,
+   an immune compartment, vascular flow, systemic PK), or when the cell lines you looked up
+   are all failing the gate for the same contextual reason. Run web_search FIRST to find a
+   real supplier or CRO, then pass it in so the card carries citable sourcing. Propose the
+   model class you would actually put in the paper, and propose the honest 2D comparator too
+   so the panel shows the contrast. You supply the candidate and its sourcing; the pipeline
+   scores it exactly like every other model.
+3. AGGREGATE. Call build_recommendations(target_symbol, disease, question_type) LAST. It
    fuses everything you gathered this conversation into the ranked cards (science gate,
    then technical suitability) with scores, reasons, watch-outs, and sourcing. It ranks
-   only the cell models you actually looked up; it does not invent a panel. So look up the
-   candidate models you want compared (find_cell_model / gene_dependency / cell_line_provenance)
-   BEFORE aggregating — otherwise it will report that no models were investigated.
+   only the models you actually looked up or proposed; it does not invent a panel. So gather
+   the candidates you want compared (find_cell_model / gene_dependency / cell_line_provenance
+   for cell lines, propose_model_candidate for everything else) BEFORE aggregating —
+   otherwise it will report that no models were investigated.
    question_type is one of: {_QUESTION_TYPES}.
-3. ANNOTATE. Immediately after build_recommendations, call annotate_recommendations with one
+4. ANNOTATE. Immediately after build_recommendations, call annotate_recommendations with one
    {{model, why}} per ranked model — 'why' being a single sentence with the comparative,
    mechanistic argument for why that model wins or falls short (the same reasoning you would
    write in prose: multi-omics coverage, disease-driver context, allele comparison, why a
