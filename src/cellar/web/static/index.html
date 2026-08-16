@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Cellar</title>
+<link rel="icon" type="image/svg+xml" href="/assets/cellar-mark-favicon.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/assets/tokens.css" />
+<link rel="stylesheet" href="/static/css/app.css" />
+</head>
+<body>
+  <div class="layout">
+    <div class="app">
+      <div class="topbar">
+        <span class="mark">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 88" fill="none" role="img" aria-label="Cellar">
+            <circle cx="44" cy="44" r="39" stroke="currentColor" stroke-width="6"></circle>
+            <circle cx="55" cy="37" r="13" fill="currentColor"></circle>
+          </svg>
+        </span>
+        <div>
+          <div class="wordmark">Cellar</div>
+          <div class="tagline">Where hypotheses come to culture</div>
+        </div>
+        <div class="spacer"></div>
+        <button class="newbtn" id="new-btn" type="button" title="Start a new investigation (clears the conversation and evidence)">New investigation</button>
+        <span class="chip" id="model">connecting…</span>
+      </div>
+
+      <div class="messages" id="messages"></div>
+
+      <form class="composer" id="composer">
+        <input id="input" autocomplete="off"
+          placeholder="Ask — e.g. which model should I use for ZDHHC20 in PDAC for target validation?"
+          aria-label="Message cellar" />
+        <button class="send" id="send" type="submit">Send</button>
+      </form>
+    </div>
+
+    <aside class="results" id="results">
+      <div class="results__head">
+        <div class="results__title">Recommendations</div>
+        <div class="results__sub" id="results-sub">Ranked models appear here.</div>
+      </div>
+      <div class="results__body" id="results-body">
+        <div class="results__empty" id="results-empty">
+          Ask for a model — e.g. “which model for ZDHHC20 in PDAC, target validation?” — and the
+          ranked cell lines show up here. Click any card to expand it.
+        </div>
+      </div>
+      <div class="verify-slot" id="verify-slot"></div>
+    </aside>
+  </div>
+
+  <dialog id="api-key-dialog">
+    <form id="api-key-form">
+      <h2>Add your Anthropic API key</h2>
+      <p class="api-key-help">
+        No key is configured on this server. Paste your own Anthropic API key to use cellar —
+        it is applied immediately and saved to the local <code>.env</code> file.
+      </p>
+      <input type="password" id="api-key-input" placeholder="sk-ant-..." autocomplete="off" />
+      <p id="api-key-error"></p>
+      <div class="api-key-actions">
+        <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">Get a key</a>
+        <button type="submit" id="api-key-save">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+<script src="/static/js/markdown.js"></script>
+<script src="/static/js/dom-utils.js"></script>
+<script src="/static/js/activity.js"></script>
+<script src="/static/js/recommendations.js"></script>
+<script src="/static/js/chat.js"></script>
+<script src="/static/js/app.js"></script>
+</body>
+</html>

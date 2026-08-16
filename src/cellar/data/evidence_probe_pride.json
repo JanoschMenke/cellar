@@ -1,0 +1,450 @@
+{
+ "zdhhc20_projects": {
+  "query_accession": "Q5W0Z9",
+  "n_records": 0,
+  "records": []
+ },
+ "pdac_projects": {
+  "api_total": 144,
+  "returned": 60,
+  "truncated": true,
+  "sample": [
+   {
+    "accession": "PXD000750",
+    "title": "Metastatic pancreatic cancer signaling",
+    "organisms": [
+     "Homo sapiens (human)"
+    ],
+    "organism_parts": [
+     "Cell culture"
+    ],
+    "diseases": [
+     "Pancreatic ductal adenocarcinoma"
+    ],
+    "instruments": [
+     "LTQ Orbitrap Elite",
+     "LTQ Orbitrap XL"
+    ],
+    "experiment_types": [
+     "Affinity purification coupled with mass spectrometry proteomics",
+     "Shotgun proteomics"
+    ],
+    "softwares": [
+     "Mascot",
+     "Proteome Discoverer",
+     "Sequest"
+    ],
+    "quantification_methods": [
+     "SILAC"
+    ],
+    "keywords": [
+     "Phosphotyrosine"
+    ],
+    "project_tags": [
+     "Biomedical"
+    ],
+    "submission_date": "2014-02-11",
+    "publication_date": "2014-08-13",
+    "submitters": [
+     "Akhilesh Pandey"
+    ],
+    "lab_pis": [
+     "Min-Sik Kim"
+    ],
+    "affiliations": [
+     "Institute of Genetic Medicine, Johns Hopkins University School of Medicine"
+    ],
+    "references": [
+     {
+      "pubmed_id": 24895378,
+      "doi": null,
+      "reference_line": "Kim MS, Zhong Y, Yachida S, Rajeshkumar NV, Abel ML, Marimuthu A, Mudgal K, Hruban RH, Poling JS, Tyner JW, Maitra A, Iacobuzio-Donahue CA, Pandey A. Heterogeneity of pancreatic cancer metastases in a single patient revealed by quantitative proteomics. Mol Cell Proteomics. 2014 Jun 3. pii: mcp.M114.038547"
+     }
+    ],
+    "source": "search"
+   },
+   {
+    "accession": "PXD001833",
+    "title": "Immunohistochemical markers distinguishing cholangiocellular carcinoma from pancreatic ductal adenocarcinoma discovered by proteomic analysis of microdissected cells",
+    "organisms": [
+     "Homo sapiens (human)"
+    ],
+    "organism_parts": [
+     "Cholangiocarcinoma cell",
+     "Epithelial cell",
+     "Pancreatic ductal adenocarcinoma cell"
+    ],
+    "diseases": [
+     "Cholangiocarcinoma",
+     "Pancreatic ductal adenocarcinoma"
+    ],
+    "instruments": [
+     "LTQ Orbitrap Elite"
+    ],
+    "experiment_types": [
+     "Shotgun proteomics"
+    ],
+    "softwares": [
+     "Mascot",
+     "Proteome Discoverer"
+    ],
+    "quantification_methods": [
+     "product ion intensity"
+    ],
+    "keywords": [
+     "Biomarker",
+     "Cholangiocellular carcinoma",
+     "Laser capture microdissection",
+     "Lc-ms/ms",
+     "Pancreatic ductal adenocarcinoma"
+    ],
+    "project_tags": [
+     "Biomedical"
+    ],
+    "submission_date": "2015-02-20",
+    "publication_date": "2015-12-10",
+    "submitters": [
+     "Juliet Padden"
+    ],
+    "lab_pis": [
+     "Barbara Sitek"
+    ],
+    "affiliations": [
+     "Medizinisches Proteom-Center - Ruhr-Universit\u00e4t Bochum"
+    ],
+    "references": [
+     {
+      "pubmed_id": 26644413,
+      "doi": null,
+      "reference_line": "Padden J, Ahrens M, K\u00e4lsch J, Bertram S, Megger DA, Bracht T, Eisenacher M, Kocabayoglu P, Meyer HE, Sipos B, Baba HA, Sitek B. Immunohistochemical Markers Distinguishing Cholangiocellular Carcinoma from Pancreatic Ductal Adenocarcinoma Discovered by Proteomic Analysis of Microdissected Cells. Mol Cell Proteomics. 2015 Dec 7. pii: mcp.M115.054585"
+     }
+    ],
+    "source": "search"
+   },
+   {
+    "accession": "PXD003198",
+    "title": "Characterisation of pancreatic ductal adenocarcinoma subtypes by global phosphotyrosine  profiling",
+    "organisms": [
+     "Homo sapiens (human)"
+    ],
+    "organism_parts": [
+     "Pancreatic cell line"
+    ],
+    "diseases": [
+     "Pancreatic cancer"
+    ],
+    "instruments": [
+     "LTQ Orbitrap Velos",
+     "Q Exactive"
+    ],
+    "experiment_types": [
+     "Shotgun proteomics"
+    ],
+    "softwares": [
+     "MaxQuant"
+    ],
+    "quantification_methods": [
+     "TIC"
+    ],
+    "keywords": [
+     "Pancreatic cancer",
+     "Phosphoproteome",
+     "Phosphoproteomics",
+     "Phosphotyrosine",
+     "Shotgun",
+     "Subtypes"
+    ],
+    "project_tags": [],
+    "submission_date": "2016-04-27",
+    "publication_date": "2016-06-09",
+    "submitters": [
+     "Emily Humphrey"
+    ],
+    "lab_pis": [
+     "Professor Roger Daly"
+    ],
+    "affiliations": [
+     "Head, Department of Biochemistry and Molecular Biology, Monash University Head, Signalling Network Laboratory, Monash University Head, Biomedicine Discovery Institute Cancer Program, Monash University"
+    ],
+    "references": [
+     {
+      "pubmed_id": 27259358,
+      "doi": null,
+      "reference_line": "Humphrey ES, Su SP, Nagrial AM, Hochgr\u00e4fe F, Pajic M, Lehrbach GM, Parton RG, Yap AS, Horvath LG, Chang DK, Biankin AV, Wu J, Daly RJ. Resolution of novel pancreatic ductal adenocarcinoma subtypes by global phosphotyrosine profiling. Mol Cell Proteomics. 2016 Jun 3. pii: mcp.M116.058313"
+     }
+    ],
+    "source": "search"
+   },
+   {
+    "accession": "PXD005144",
+    "title": "Chronic pancreatitis vs pancreatic cancer LC-MS",
+    "organisms": [
+     "Homo sapiens (human)"
+    ],
+    "organism_parts": [
+     "Blood serum"
+    ],
+    "diseases": [],
+    "instruments": [
+     "Synapt MS"
+    ],
+    "experiment_types": [
+     "HDMSE",
+     "Shotgun proteomics"
+    ],
+    "softwares": [
+     "Progenesis QI",
+     "ProteinLynx Global Server"
+    ],
+    "quantification_methods": [],
+    "keywords": [
+     "Chronic pancreatitis",
+     "Label-free qunatification",
+     "Lc-ms",
+     "Multivariate data analysis",
+     "Pancreatic cancer",
+     "Pancreatic ductal adenocarcinoma"
+    ],
+    "project_tags": [
+     "Biomedical"
+    ],
+    "submission_date": "2016-10-13",
+    "publication_date": "2017-06-09",
+    "submitters": [
+     "Sakari Joenv\u00e4\u00e4r\u00e4"
+    ],
+    "lab_pis": [
+     "Risto Renkonen"
+    ],
+    "affiliations": [
+     "Transplantation Laboratory, Haartman Institute, University of Helsinki, Finland"
+    ],
+    "references": [
+     {
+      "pubmed_id": 28573829,
+      "doi": "10.1002/cam4.1107",
+      "reference_line": "Saraswat M, Joenv\u00e4\u00e4r\u00e4 S, Sepp\u00e4nen H, Mustonen H, Haglund C, Renkonen R. Comparative proteomic profiling of the serum differentiates pancreatic cancer from chronic pancreatitis. Cancer Med. 2017 Jun 1"
+     }
+    ],
+    "source": "search"
+   },
+   {
+    "accession": "PXD007801",
+    "title": "Trichostatin A alters cytoskeleton and energy metabolism of pancreatic adenocarcinoma cells: an in depth proteomic study.",
+    "organisms": [
+     "Homo sapiens (human)"
+    ],
+    "organism_parts": [
+     "Cell culture"
+    ],
+    "diseases": [],
+    "instruments": [
+     "TripleTOF 5600"
+    ],
+    "experiment_types": [
+     "SWATH MS",
+     "Shotgun proteomics"
+    ],
+    "softwares": [
+     "Analyst",
+     "Mascot"
+    ],
+    "quantification_methods": [],
+    "keywords": [
+     "2-deoxy-d-glucose",
+     "Cytoskeleton",
+     "Metabolism",
+     "Pancreatic cancer",
+     "Shotgun proteomics",
+     "Trichostatin a"
+    ],
+    "project_tags": [
+     "Biological",
+     "Biomedical"
+    ],
+    "submission_date": "2017-09-20",
+    "publication_date": "2017-11-08",
+    "submitters": [
+     "Marcello Manfredi"
+    ],
+    "lab_pis": [
+     "Marcello Manfredi"
+    ],
+    "affiliations": [
+     "Department of Sciences and Technological Innovation, University of Piemonte Orientale, Italy"
+    ],
+    "references": [
+     {
+      "pubmed_id": 29095525,
+      "doi": "10.1002/jcb.26436",
+      "reference_line": "Pozza ED, Manfredi M, Brandi J, Buzzi A, Conte E, Pacchiana R, Cecconi D, Marengo E, Donadelli M. Trichostatin A alters cytoskeleton and energy metabolism of pancreatic adenocarcinoma cells: an in depth proteomic study. J Cell Biochem. 2017"
+     }
+    ],
+    "source": "search"
+   },
+   {
+    "accession": "PXD008410",
+    "title": "PI3Kinase Isoforms in Pancreatic cancer",
+    "organisms": [
+     "Homo sapiens (human)"
+    ],
+    "organism_parts": [
+     "Cell culture",
+     "Pancreatic acinus",
+     "Pancreatic ductal cell"
+    ],
+    "diseases": [
+     "Pancreatic cancer"
+    ],
+    "instruments": [
+     "LTQ Orbitrap"
+    ],
+    "experiment_types": [
+     "Shotgun proteomics"
+    ],
+    "softwares": [
+     "Mascot",
+     "Proteome Discoverer"
+    ],
+    "quantification_methods": [
+     "SILAC"
+    ],
+    "keywords": [
+     "Pi3k signaling pathway isoforms"
+    ],
+    "project_tags": [
+     "Biomedical"
+    ],
+    "submission_date": "2017-12-11",
+    "publication_date": "2022-02-28",
+    "submitters": [
+     "Emmanuelle Mouton Barbosa"
+    ],
+    "lab_pis": [
+     "Guillermet Julie"
+    ],
+    "affiliations": [
+     "Centre de Recherches en Canc\u00e9rologie de Toulouse; INSERM U1037, team 17 PI3K isoforms, signalling and cancerogenesis"
+    ],
+    "references": [
+     {
+      "pubmed_id": 34552006,
+      "doi": "10.1158/1535-7163.mct-20-0981",
+      "reference_line": "Cintas C, Douche T, Dantes Z, Mouton-Barbosa E, Bousquet MP, Cayron C, Therville N, Pont F, Ramos-Delgado F, Guyon C, Garmy-Susini B, Cappello P, Burlet-Schiltz O, Hirsch E, Gomez-Brouchet A, Thibault B, Reichert M, Guillermet-Guibert J. Phosphoproteomics Identifies PI3K Inhibitor-selective Adaptive Responses in Pancreatic Cancer Cell Therapy and Resistance. Mol Cancer Ther. 2021 20(12):2433-2445"
+     }
+    ],
+    "source": "search"
+   },
+   {
+    "accession": "PXD009254",
+    "title": "Proteome profiles of primary pancreatic ductal adenocarcinomas undergoing adjuvant chemoradiation link ALDH1A1 to early local recurrence and chemoradiation resistance",
+    "organisms": [
+     "Homo sapiens (human)"
+    ],
+    "organism_parts": [
+     "Pancreas"
+    ],
+    "diseases": [
+     "Pancreatic ductal adenocarcinoma"
+    ],
+    "instruments": [
+     "Q Exactive"
+    ],
+    "experiment_types": [
+     "Shotgun proteomics"
+    ],
+    "softwares": [
+     "MaxQuant"
+    ],
+    "quantification_methods": [
+     "Label free"
+    ],
+    "keywords": [
+     "Aldh1a1",
+     "Chemoradiation",
+     "Maoa"
+    ],
+    "project_tags": [
+     "Biomedical"
+    ],
+    "submission_date": "2018-03-19",
+    "publication_date": "2018-09-11",
+    "submitters": [
+     "Victor Oria"
+    ],
+    "lab_pis": [
+     "Oliver Schilling"
+    ],
+    "affiliations": [
+     "Institute of Molecular Medicine and Cell Research Stefan Meier Strasse 17, 79104 Freiburg, Germany"
+    ],
+    "references": [
+     {
+      "pubmed_id": 30172883,
+      "doi": "10.1016/j.tranon.2018.08.001",
+      "reference_line": "Oria VO, Bronsert P, Thomsen AR, F\u00f6ll MC, Zamboglou C, Hannibal L, Behringer S, Biniossek ML, Schreiber C, Grosu AL, Bolm L, Rades D, Keck T, Werner M, Wellner UF, Schilling O. Proteome Profiling of Primary Pancreatic Ductal Adenocarcinomas Undergoing Additive Chemoradiation Link ALDH1A1 to Early Local Recurrence and Chemoradiation Resistance. Transl Oncol. 2018 11(6):1307-1322"
+     }
+    ],
+    "source": "search"
+   },
+   {
+    "accession": "PXD010112",
+    "title": "(Phospho-)proteomic analysis of gemcitabine resistant pancreatic cancer cells reveals that microtubule-associated protein 2 upregulation associates with taxane treatment response",
+    "organisms": [
+     "Homo sapiens (human)"
+    ],
+    "organism_parts": [
+     "Pancreatic ductal cell"
+    ],
+    "diseases": [
+     "Pancreatic ductal carcinoma"
+    ],
+    "instruments": [
+     "Q Exactive"
+    ],
+    "experiment_types": [
+     "Shotgun proteomics"
+    ],
+    "softwares": [
+     "MaxQuant"
+    ],
+    "quantification_methods": [
+     "MS1 intensity based label-free quantification method",
+     "Spectrum counting"
+    ],
+    "keywords": [
+     "Gemcitabine",
+     "Human",
+     "Label-free",
+     "Paclitaxel",
+     "Pancreatic cancer",
+     "Phosphoproteomics",
+     "Single-shot"
+    ],
+    "project_tags": [
+     "Biological",
+     "Biomedical"
+    ],
+    "submission_date": "2018-06-13",
+    "publication_date": "2019-06-19",
+    "submitters": [
+     "Sander Piersma"
+    ],
+    "lab_pis": [
+     "Connie Ramona Jimenez"
+    ],
+    "affiliations": [
+     "OncoProteomics Laboratory, Dept of Medical Oncology, VU University Medical Center, Amsterdam, The Netherlands"
+    ],
+    "references": [
+     {
+      "pubmed_id": 31205498,
+      "doi": "10.1177/1758835919841233",
+      "reference_line": "Le Large TYS, El Hassouni B, Funel N, Kok B, Piersma SR, Pham TV, Olive KP, Kazemier G, van Laarhoven HWM, Jimenez CR, Bijlsma MF, Giovannetti E. Proteomic analysis of gemcitabine-resistant pancreatic cancer cells reveals that microtubule-associated protein 2 upregulation associates with taxane treatment. Ther Adv Med Oncol. 2019 11:1758835919841233"
+     }
+    ],
+    "source": "search"
+   }
+  ]
+ }
+}

@@ -1,0 +1,54 @@
+{
+ "GOLGA7": {
+  "relation_type": "no_direct_functional_link",
+  "required_for_target_activity": false,
+  "gates_model_selection": false,
+  "consequence_if_absent": "GOLGA7 loss is not expected to impair ZDHHC20 catalytic (autoacylation/palmitoyltransferase) activity, since no direct interaction between GOLGA7 and ZDHHC20 has been reported.",
+  "evidence_pmids": [],
+  "note": "GOLGA7 (GCP16) is documented in the literature as an obligate stabilizing/localization cofactor for ZDHHC9 (and its paralog GOLGA7B for ZDHHC5), not for ZDHHC20, and no co-mentioning evidence for a GOLGA7-ZDHHC20 relationship was found in this search.",
+  "_search_total": 0,
+  "_pmids_scanned": []
+ },
+ "EGFR": {
+  "relation_type": "substrate",
+  "required_for_target_activity": false,
+  "gates_model_selection": false,
+  "consequence_if_absent": "Without EGFR, ZDHHC20 would lose one of its known substrates but would retain its intrinsic S-acyltransferase catalytic activity toward other substrates, so its molecular function would not be abrogated.",
+  "evidence_pmids": [
+   "34610265",
+   "32127496",
+   "27153536",
+   "39091878"
+  ],
+  "note": "EGFR is a direct palmitoylation substrate of the palmitoyltransferase ZDHHC20 (modifying C-terminal tail cysteines to regulate EGFR signaling kinetics), not a cofactor or upstream regulator of ZDHHC20 itself, so EGFR loss affects EGFR-dependent phenotypes rather than ZDHHC20's catalytic function.",
+  "_search_total": 6,
+  "_pmids_scanned": [
+   "34610265",
+   "32127496",
+   "39091878",
+   "27153536",
+   "34309372",
+   "34589930"
+  ]
+ },
+ "KRAS": {
+  "relation_type": "upstream_driver",
+  "required_for_target_activity": false,
+  "gates_model_selection": false,
+  "consequence_if_absent": "Loss of KRAS (or KRAS mutant signaling) would reduce ZDHHC20 upregulation and eliminate the oncogenic context in which its palmitoylation activity is pathologically relevant, but would not abolish ZDHHC20's intrinsic catalytic (S-acyltransferase) activity on its actual substrates.",
+  "evidence_pmids": [
+   "38821916",
+   "32127496",
+   "39091878",
+   "34610265"
+  ],
+  "note": "KRAS acts as an upstream transcriptional/signaling driver that upregulates ZDHHC20 and defines the disease context (mutant-KRAS lung/pancreatic cancer), while ZDHHC20's direct catalytic substrates are EGFR and YTHDF3, not KRAS itself.",
+  "_search_total": 4,
+  "_pmids_scanned": [
+   "38821916",
+   "32127496",
+   "39091878",
+   "34610265"
+  ]
+ }
+}

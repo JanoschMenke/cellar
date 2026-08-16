@@ -1,0 +1,123 @@
+/* ============================================================
+   Cellar — Design Tokens (Direction A · Clinical)
+   Drop into your global stylesheet. Reference via var(--cellar-*).
+   ============================================================ */
+
+:root {
+  /* --- Core surfaces --- */
+  --cellar-paper:        #F7F6F2;  /* app background */
+  --cellar-surface:      #FFFFFF;  /* cards, inputs */
+  --cellar-border:       #E3E1D9;  /* hairlines, card borders */
+  --cellar-border-strong:#D3D1C8;  /* input / control borders */
+
+  /* --- Text --- */
+  --cellar-ink:          #1A1C1A;  /* primary text */
+  --cellar-ink-muted:    #6B6F68;  /* secondary text */
+  --cellar-ink-faint:    #9A9D94;  /* labels, captions */
+
+  /* --- Brand --- */
+  --cellar-xylem:        #34573B;  /* PRIMARY — buttons, links, mark */
+  --cellar-xylem-tint:   #E9EDE6;  /* primary chip background */
+  --cellar-xylem-border: #D3DCCB;  /* primary chip border */
+  --cellar-sage:         #94A888;  /* secondary accent */
+  --cellar-signal:       #B8862F;  /* attention / caution */
+  --cellar-signal-tint:  #F6EFE0;
+
+  /* --- Model-type accents (chips) --- */
+  --cellar-cellline:        #34573B;
+  --cellar-cellline-tint:   #E9EDE6;
+  --cellar-cellline-border: #D3DCCB;
+  --cellar-organoid:        #3A6A7A;
+  --cellar-organoid-tint:   #E4EEF1;
+  --cellar-organoid-border: #CFE0E5;
+  --cellar-pdx:             #7A4A6A;
+  --cellar-pdx-tint:        #F1E6EE;
+  --cellar-pdx-border:      #E5D3E0;
+  --cellar-mouse:           #8A5A2F;
+  --cellar-mouse-tint:      #F2E8DE;
+  --cellar-mouse-border:    #E5D5C5;
+
+  /* --- Confidence scale --- */
+  --cellar-conf-strong:   #34573B;  /* >= 80% */
+  --cellar-conf-moderate: #94A888;  /* 50-79% */
+  --cellar-conf-weak:     #C9C6BA;  /* < 50%  */
+
+  /* --- Typography --- */
+  --cellar-font-display: 'Space Grotesk', system-ui, sans-serif;
+  --cellar-font-body:    'Instrument Sans', system-ui, sans-serif;
+  --cellar-font-mono:    'IBM Plex Mono', ui-monospace, monospace;
+
+  /* Type scale (px) */
+  --cellar-text-display: 44px;   /* hero */
+  --cellar-text-h1:      26px;
+  --cellar-text-h2:      22px;
+  --cellar-text-lg:      21px;   /* card title */
+  --cellar-text-body:    15px;
+  --cellar-text-sm:      13.5px;
+  --cellar-text-data:    13px;   /* mono values */
+  --cellar-text-label:   11px;   /* uppercase mono labels */
+
+  /* --- Radii --- */
+  --cellar-radius-sm: 7px;
+  --cellar-radius-md: 11px;   /* inputs, buttons region */
+  --cellar-radius-lg: 14px;   /* cards */
+  --cellar-radius-pill: 999px;
+
+  /* --- Elevation --- */
+  --cellar-shadow-card: 0 1px 2px rgba(26,28,26,.04);
+  --cellar-shadow-pop:  0 24px 60px -30px rgba(30,32,28,.35);
+}
+
+/* ------------------------------------------------------------
+   Optional ready-made component classes.
+   Delete if your framework maps tokens differently.
+   ------------------------------------------------------------ */
+
+.cellar-btn {
+  font-family: var(--cellar-font-body);
+  font-weight: 600;
+  font-size: 14px;
+  padding: 11px 20px;
+  border-radius: 9px;
+  border: none;
+  cursor: pointer;
+}
+.cellar-btn--primary   { color: var(--cellar-paper); background: var(--cellar-xylem); }
+.cellar-btn--secondary { color: var(--cellar-ink); background: var(--cellar-surface); border: 1px solid var(--cellar-border-strong); }
+.cellar-btn--ghost     { color: var(--cellar-xylem); background: transparent; }
+
+.cellar-input {
+  font-family: var(--cellar-font-body);
+  font-size: 14.5px;
+  background: var(--cellar-surface);
+  border: 1px solid var(--cellar-border-strong);
+  border-radius: var(--cellar-radius-md);
+  padding: 13px 16px;
+  color: var(--cellar-ink);
+}
+
+.cellar-card {
+  background: var(--cellar-surface);
+  border: 1px solid var(--cellar-border);
+  border-radius: var(--cellar-radius-lg);
+  box-shadow: var(--cellar-shadow-card);
+}
+
+.cellar-chip {
+  font-family: var(--cellar-font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 11px;
+  border-radius: var(--cellar-radius-sm);
+  color: var(--cellar-xylem);
+  background: var(--cellar-xylem-tint);
+  border: 1px solid var(--cellar-xylem-border);
+}
+
+.cellar-label {
+  font-family: var(--cellar-font-mono);
+  font-size: var(--cellar-text-label);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--cellar-ink-faint);
+}
