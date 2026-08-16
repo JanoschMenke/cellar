@@ -12,12 +12,6 @@ product (see the honest notes below).
 
 Worked example: **ZDHHC20 in PDAC** (pancreatic ductal adenocarcinoma).
 
-<img width="689" height="384" alt="cellar recommendation cards" src="https://github.com/user-attachments/assets/05bbe5d5-d29f-4850-a7af-298f486b2f25" />
-
-<img width="688" height="412" alt="cellar evidence detail" src="https://github.com/user-attachments/assets/83ffe1f6-434c-4a62-b0ef-fe2e2507457f" />
-
-<img width="694" height="375" alt="cellar chat" src="https://github.com/user-attachments/assets/476fbc6d-b090-4dda-8d9b-cbb1554916a3" />
-
 ## Good to know
 
 A few honest caveats before you rely on anything it tells you:
@@ -31,6 +25,13 @@ A few honest caveats before you rely on anything it tells you:
 - **You bring your own Claude API key** (see below). As with any secret, be careful where you
   paste it: only enter it into tools you actually trust, and keep it out of shared machines,
   screenshots, and chat logs.
+
+We aim to guide the model to push back on unreasonable requests:
+
+<img width="689" height="384" alt="cellar recommendation cards" src="https://github.com/user-attachments/assets/05bbe5d5-d29f-4850-a7af-298f486b2f25" />
+
+<img width="688" height="412" alt="cellar evidence detail" src="https://github.com/user-attachments/assets/83ffe1f6-434c-4a62-b0ef-fe2e2507457f" />
+
 
 ## Quickstart
 
