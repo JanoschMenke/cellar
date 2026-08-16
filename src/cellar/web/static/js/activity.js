@@ -12,21 +12,66 @@ const TOOL_LABELS = {
   build_recommendations: "Building recommendations",
   recommend_models: "Building recommendations",
   annotate_recommendations: "Annotating recommendations",
+  propose_model_candidate: "Proposing a model candidate",
   web_search: "Searching the web",
   web_fetch: "Fetching a web page",
   code_execution: "Filtering web results",
   bash_code_execution: "Filtering web results",
 };
+const MAX_SUB_LINKS = 8;
+const PASSPORT_BASE = "https://cellmodelpassports.sanger.ac.uk/passports/";
 const SERVER_TOOLS = new Set(["web_search", "web_fetch", "code_execution", "bash_code_execution"]);
 function toolLabel(name) {
   return TOOL_LABELS[name] || (name || "tool").replace(/_/g, " ");
 }
 
-function toolSummary(name, ev) {
+function parseToolContent(ev) {
+  try { const d = JSON.parse(ev.content); return d && typeof d === "object" ? d : null; }
+  catch (e) { return null; }
+}
+
+function isHttpUrl(value) {
+  return typeof value === "string" && /^https?:\/\//.test(value);
+}
+
+function toolLink(d) {
+  if (!d) return null;
+  const direct = [d.reference, d.cellosaurus_url, d.catalog_url, d.sourcing_url].find(isHttpUrl);
+  if (direct) return direct;
+  const passportId = [d.sidm_id, d.model_id].find((v) => typeof v === "string" && v);
+  if (passportId) return PASSPORT_BASE + passportId;
+  return null;
+}
+
+function plainText(value) {
+  const holder = document.createElement("textarea");
+  holder.innerHTML = String(value == null ? "" : value);
+  return holder.value.replace(/<[^>]*>/g, "").trim();
+}
+
+function toolSubLinks(d) {
+  if (!d) return [];
+  const out = [];
+  if (Array.isArray(d.papers)) {
+    d.papers.forEach((p) => {
+      if (p && isHttpUrl(p.url))
+        out.push({ label: plainText(p.title) || p.doi || p.pmid || p.url, url: p.url });
+    });
+  }
+  const listings = d.commercial_listings;
+  if (listings && typeof listings === "object") {
+    Object.keys(listings).forEach((supplier) => {
+      const entry = listings[supplier];
+      if (entry && isHttpUrl(entry.url))
+        out.push({ label: supplier + " " + (entry.accession || ""), url: entry.url });
+    });
+  }
+  return out.slice(0, MAX_SUB_LINKS);
+}
+
+function toolSummary(name, ev, d) {
   if (ev.is_error) return "failed";
-  let d = null;
-  try { d = JSON.parse(ev.content); } catch (e) { d = null; }
-  if (!d || typeof d !== "object") return "done";
+  if (!d) return "done";
   if (d.found === false) return "not found";
   if (name === "find_cell_model" && d.sidm_id) return d.sidm_id;
   if (name === "cell_model_gene_mutations" && Array.isArray(d.mutations))
@@ -69,20 +114,43 @@ function activityStep(a, name) {
   act.title.textContent = toolLabel(name) + "…";
   const row = el("div", "step running");
   row.appendChild(el("span", "step__dot"));
-  row.appendChild(el("span", "step__label", toolLabel(name)));
+  const label = el("span", "step__label", toolLabel(name));
+  row.appendChild(label);
   const sum = el("span", "step__sum", "…");
   row.appendChild(sum);
   act.steps.appendChild(row);
   row._sum = sum;
+  row._label = label;
   return row;
 }
 
-function activityDone(a, row, ev) {
-  if (row) {
-    row.classList.remove("running");
-    row.classList.add(ev.is_error ? "error" : "done");
-    row._sum.textContent = toolSummary(ev.tool_name, ev);
+function sourceAnchor(url, text, cls) {
+  const a = el("a", cls, text);
+  a.href = url;
+  a.target = "_blank";
+  a.rel = "noopener noreferrer";
+  return a;
+}
+
+function attachSourceLinks(row, name, d) {
+  const primary = toolLink(d);
+  if (primary) {
+    row._label.replaceChildren(sourceAnchor(primary, toolLabel(name), "step__link"));
   }
+  const subs = toolSubLinks(d);
+  if (!subs.length) return;
+  const list = el("div", "step__links");
+  subs.forEach((s) => list.appendChild(sourceAnchor(s.url, s.label, "step__sublink")));
+  row.after(list);
+}
+
+function activityDone(a, row, ev) {
+  if (!row) return;
+  row.classList.remove("running");
+  row.classList.add(ev.is_error ? "error" : "done");
+  const d = parseToolContent(ev);
+  row._sum.textContent = toolSummary(ev.tool_name, ev, d);
+  if (!ev.is_error) attachSourceLinks(row, ev.tool_name, d);
 }
 
 function activityServerDone(a, row) {
