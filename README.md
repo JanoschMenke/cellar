@@ -32,9 +32,6 @@ We aim to guide the model to push back on unreasonable requests:
 
 <img width="689" height="384" alt="cellar recommendation cards" src="https://github.com/user-attachments/assets/05bbe5d5-d29f-4850-a7af-298f486b2f25" />
 
-<img width="688" height="412" alt="cellar evidence detail" src="https://github.com/user-attachments/assets/83ffe1f6-434c-4a62-b0ef-fe2e2507457f" />
-
-
 ## Quickstart
 
 Requires **[uv](https://docs.astral.sh/uv/)** (it installs and pins Python 3.13, resolves
