@@ -58,6 +58,11 @@ function toolSubLinks(d) {
         out.push({ label: plainText(p.title) || p.doi || p.pmid || p.url, url: p.url });
     });
   }
+  if (Array.isArray(d.results)) {
+    d.results.forEach((r) => {
+      if (r && isHttpUrl(r.url)) out.push({ label: plainText(r.title) || r.url, url: r.url });
+    });
+  }
   const listings = d.commercial_listings;
   if (listings && typeof listings === "object") {
     Object.keys(listings).forEach((supplier) => {
@@ -158,6 +163,20 @@ function activityServerDone(a, row) {
   row.classList.remove("running");
   row.classList.add("done");
   row._sum.textContent = "done";
+}
+
+function activityServerResult(a, row, ev) {
+  if (!row) return;
+  const d = parseToolContent(ev);
+  if (ev.is_error) {
+    row.classList.remove("done");
+    row.classList.add("error");
+    row._sum.textContent = "failed";
+    return;
+  }
+  const n = d && typeof d.n_results === "number" ? d.n_results : 0;
+  row._sum.textContent = n + " result" + (n === 1 ? "" : "s");
+  attachSourceLinks(row, ev.tool_name, d);
 }
 
 function activityFinish(a) {

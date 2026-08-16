@@ -11,12 +11,30 @@ from cellar.services.evidence_store import EvidenceStore, bind_store
 from cellar.services.llm import LlmClient
 from cellar.tools.base import Tool, ToolResult
 
+_SERVER_TOOL_RESULT_BLOCKS = {"web_search_tool_result", "web_fetch_tool_result"}
+_SERVER_TOOL_BY_BLOCK = {
+    "web_search_tool_result": "web_search",
+    "web_fetch_tool_result": "web_fetch",
+}
+
 
 def _parse_json(content: str) -> object | None:
     try:
         return cast(object, json.loads(content))
     except (ValueError, TypeError):
         return content
+
+
+def _server_tool_results(block: object) -> tuple[list[dict[str, str]], str]:
+    payload = getattr(block, "content", None)
+    if not isinstance(payload, list):
+        return [], str(getattr(payload, "error_code", "") or "")
+    results: list[dict[str, str]] = []
+    for item in cast("list[object]", payload):
+        url = str(getattr(item, "url", "") or "")
+        if url:
+            results.append({"url": url, "title": str(getattr(item, "title", "") or url)})
+    return results, ""
 
 
 class StreamingAgent:
@@ -97,6 +115,7 @@ class StreamingAgent:
             container = getattr(response, "container", None)
             if container is not None and getattr(container, "id", None):
                 self._container_id = container.id
+            yield from self._emit_server_tool_results(response)
             self._transcript.append({"role": "assistant", "content": response.content})
             if response.stop_reason == "pause_turn":
                 continue
@@ -104,6 +123,24 @@ class StreamingAgent:
                 yield StreamEvent(kind=StreamEventKind.DONE)
                 return
             yield from self._run_requested_tools(response)
+
+    def _emit_server_tool_results(self, response: Message) -> Iterator[StreamEvent]:
+        for block in response.content:
+            block_type = getattr(block, "type", "")
+            if block_type not in _SERVER_TOOL_RESULT_BLOCKS:
+                continue
+            tool_name = _SERVER_TOOL_BY_BLOCK[block_type]
+            results, error_code = _server_tool_results(block)
+            payload: dict[str, object] = {"results": results, "n_results": len(results)}
+            if error_code:
+                payload["error_code"] = error_code
+            self._evidence.record(tool_name, {}, payload, bool(error_code))
+            yield StreamEvent(
+                kind=StreamEventKind.SERVER_TOOL_RESULT,
+                tool_name=tool_name,
+                content=json.dumps(payload),
+                is_error=bool(error_code),
+            )
 
     def _run_requested_tools(self, response: Message) -> Iterator[StreamEvent]:
         tool_results: list[ToolResultBlockParam] = []

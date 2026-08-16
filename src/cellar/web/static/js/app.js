@@ -74,6 +74,7 @@ function send(text) {
   const a = addAssistant();
   scrollDown();
   const openTools = [];
+  const openServerTools = [];
   let pendingReport = null;
   let pendingRationales = [];
   let revealed = false;
@@ -85,8 +86,15 @@ function send(text) {
     const stick = isNearBottom();
     if (ev.kind === "text") { appendText(a, ev.text); }
     else if (ev.kind === "tool_use") {
-      if (SERVER_TOOLS.has(ev.tool_name)) { activityServerDone(a, activityStep(a, ev.tool_name)); }
+      if (SERVER_TOOLS.has(ev.tool_name)) {
+        const serverRow = activityStep(a, ev.tool_name);
+        activityServerDone(a, serverRow);
+        openServerTools.push(serverRow);
+      }
       else { openTools.push(activityStep(a, ev.tool_name)); }
+    }
+    else if (ev.kind === "server_tool_result") {
+      activityServerResult(a, openServerTools.shift(), ev);
     }
     else if (ev.kind === "tool_result") {
       activityDone(a, openTools.shift(), ev);
