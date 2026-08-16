@@ -232,6 +232,11 @@
   .verify-banner { font-size: 12.5px; line-height: 1.45; padding: 10px 13px; border-radius: var(--cellar-radius-md);
     margin-bottom: 4px; border: 1px solid var(--cellar-signal); background: var(--cellar-signal-tint); color: var(--cellar-signal); }
   .verify-banner--caveats { border-color: var(--cellar-border-strong); background: var(--cellar-paper); color: var(--cellar-ink-muted); }
+  .verdict-banner { padding: 11px 13px; border-radius: var(--cellar-radius-md); margin-bottom: 4px;
+    border: 1px solid var(--cellar-xylem-border); background: var(--cellar-xylem-tint); }
+  .verdict-banner__head { font-family: var(--cellar-font-display); font-weight: 700; font-size: 13.5px;
+    letter-spacing: -0.01em; color: var(--cellar-ink); }
+  .verdict-banner__body { font-size: 12.5px; line-height: 1.45; color: var(--cellar-ink-muted); margin-top: 3px; }
   .rec-foot { margin-top: 13px; padding-top: 11px; border-top: 1px solid var(--cellar-border);
     font-size: 12.5px; color: var(--cellar-ink-muted); }
   .rec-foot a { color: var(--cellar-xylem); }
