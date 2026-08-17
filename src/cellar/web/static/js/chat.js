@@ -6,9 +6,9 @@ function isNearBottom() {
 }
 
 const EXAMPLES = [
-  "Which model should I use for ZDHHC20 in PDAC for target validation?",
-  "Does the pancreatic line MIA PaCa-2 carry a KRAS mutation?",
-  "Recommend a model for KRAS in colorectal cancer for an HTS screen",
+  "Which model should I use for EGFR in NSCLC for a resistance screen?",
+  "Does TREM2 knockout change microglial phagocytosis of amyloid beta, and in which model?",
+  "Which model for CFTR in cystic fibrosis to test modulator response?",
 ];
 
 function renderEmptyState() {
