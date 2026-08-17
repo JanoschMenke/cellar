@@ -168,7 +168,7 @@ class FactsSummary(BaseModel):
     protein_confidence: str = ""
     ms_absence_guard_applied: bool = False
     pride_n_projects: int = 0
-    proteomics_modality_note: str = ""
+    protein_evidence_note: str = ""
     string_top_partners: list[str] = Field(default_factory=list)
 
 

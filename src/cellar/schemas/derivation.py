@@ -23,7 +23,6 @@ __all__ = [
     "MoaVerify",
     "PathwayCoherence",
     "PathwayMember",
-    "ProteinModalities",
     "ProteinSynthesis",
     "RankResult",
     "StrongestModel",
@@ -107,14 +106,6 @@ class RankResult(BaseModel):
     verdict: str
 
 
-class ProteinModalities(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    MS_tissue_tumor: bool
-    olink_somascan_plasma: bool
-    note: str
-
-
 class HpaProteinEvidence(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -125,7 +116,6 @@ class HpaProteinEvidence(BaseModel):
     mrna_protein_discordant: bool
     protein_cell_type_intensity: object | None
     disease_protein_prognostic: dict[str, object]
-    modalities: ProteinModalities
 
 
 class ProteinSynthesis(BaseModel):
