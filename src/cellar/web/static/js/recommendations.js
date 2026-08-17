@@ -174,11 +174,27 @@ function _resultsContext(report) {
   return [q.target_symbol, q.disease, q.question_type].filter(Boolean).join(" · ");
 }
 
+function _escalationBanner(report) {
+  if (!Array.isArray(report.cards) || !report.cards.length) return null;
+  if (report.cards.some((c) => c.recommended)) return null;
+  const verdict = (report.verdict || "").trim();
+  if (!verdict) return null;
+  const banner = el("div", "verdict-banner");
+  const heading = report.in_vivo_recommended
+    ? "No in-vitro model is adequate here"
+    : "Every candidate below was rejected";
+  banner.appendChild(el("div", "verdict-banner__head", heading));
+  banner.appendChild(el("div", "verdict-banner__body", verdict));
+  return banner;
+}
+
 function showRecommendations(report) {
   resultsSub.textContent = _resultsContext(report) || (report.verdict || "");
   resultsBody.replaceChildren();
   clearVerification();
   cardsByName = {};
+  const escalation = _escalationBanner(report);
+  if (escalation) resultsBody.appendChild(escalation);
   const v = report.verification;
   if (v && v.status && v.status !== "sound") {
     const banner = el("div", "verify-banner verify-banner--" + v.status);
