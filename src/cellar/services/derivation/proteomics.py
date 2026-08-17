@@ -35,6 +35,15 @@ def protein_evidence_note(synthesis: ProteinSynthesis | None) -> str:
     return f"{evidence}. No report of the protein measured in this model."
 
 
+def _format_locations(locations: list[str], limit: int = 3) -> str:
+    if not locations:
+        return "location not annotated"
+    shown = locations[:limit]
+    joined = ", ".join(shown)
+    remaining = len(locations) - len(shown)
+    return f"{joined} (and {remaining} more)" if remaining > 0 else joined
+
+
 def hpa_protein_evidence(ensembl_id: str, disease_hint: str = "Pancreatic") -> HpaProteinEvidence:
     d = hpa.raw_profile(ensembl_id, timeout=60)
     subloc = cast(
@@ -204,7 +213,9 @@ def synthesize_protein_evidence(
             signals.append(
                 (EvidenceTier.LOCALIZATION_AB, TIER_WEIGHT[EvidenceTier.LOCALIZATION_AB], hpa_sig)
             )
-            provenance.append(f"HPA protein '{prot_dist}', subcellular={subloc}")
+            provenance.append(
+                f"HPA protein detection: {prot_dist}; localises to {_format_locations(subloc)}"
+            )
         if hpa.mrna_protein_discordant:
             caveats.append(
                 "mRNA broad but protein narrow (HPA) — confirm protein "

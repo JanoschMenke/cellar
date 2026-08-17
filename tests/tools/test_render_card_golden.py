@@ -145,7 +145,7 @@ _EXPECTED_CONTEXT_NOTES = [
     "Protein evidence: " + _PROTEIN_NOTE,
     "Isoform caveat: Dominant isoform lacks catalytic domain in this tissue.",
     "Protein-level disease signal: protein X (unfavorable).",
-    "Mechanism needs three_d_architecture: embed in matrigel — invasion assay",
+    "Mechanism needs three d architecture: embed in matrigel.",
 ]
 
 _EXPECTED_PASS_MARKDOWN = (
@@ -190,7 +190,7 @@ _EXPECTED_PASS_MARKDOWN = (
     "PRIDE MS projects n=12 (tier=moderate). No report of the protein measured in this model.\n"
     "  • Isoform caveat: Dominant isoform lacks catalytic domain in this tissue.\n"
     "  • Protein-level disease signal: protein X (unfavorable).\n"
-    "  • Mechanism needs three_d_architecture: embed in matrigel — invasion assay\n"
+    "  • Mechanism needs three d architecture: embed in matrigel.\n"
     "\n"
     "**Source:** ATCC CRL-1420 https://www.atcc.org/products/crl-1420"
 )
@@ -240,7 +240,7 @@ _EXPECTED_REJECT_MARKDOWN = (
     "PRIDE MS projects n=12 (tier=moderate). No report of the protein measured in this model.\n"
     "  • Isoform caveat: Dominant isoform lacks catalytic domain in this tissue.\n"
     "  • Protein-level disease signal: protein X (unfavorable).\n"
-    "  • Mechanism needs three_d_architecture: embed in matrigel — invasion assay\n"
+    "  • Mechanism needs three d architecture: embed in matrigel.\n"
     "\n"
     "**Source:** ATCC CRL-1420 https://www.atcc.org/products/crl-1420"
 )

@@ -199,7 +199,7 @@ def _context_notes(
         for action in mechanism.actions:
             if action.necessity == Necessity.REQUIRED:
                 context.append(
-                    f"Mechanism needs {action.condition}: {action.action} — {action.readout_hint}"
+                    f"Mechanism needs {action.condition.replace('_', ' ')}: {action.action}."
                 )
     return context
 

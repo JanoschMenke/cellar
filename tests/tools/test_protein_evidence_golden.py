@@ -69,7 +69,7 @@ EXPECTED_SIGNAL_JSON: dict[str, object] = {
         "protein_present": 0.82,
         "confidence": 0.7,
         "provenance": [
-            "HPA protein 'Detected in some', subcellular=['Nucleus', 'Cytosol']",
+            "HPA protein detection: Detected in some; localises to Nucleus, Cytosol",
             "PRIDE MS projects n=30 (tier=high)",
         ],
         "caveats": [
