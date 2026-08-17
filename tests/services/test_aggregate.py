@@ -30,7 +30,8 @@ def test_aggregate_recommendations_reports_no_models_when_store_is_empty() -> No
 
     assert report.cards == []
     assert report.in_vivo_recommended is False
-    assert "No candidate cell-line models have been investigated for ZDHHC20" in report.verdict
+    assert "No candidate models have been investigated for ZDHHC20" in report.verdict
+    assert "propose_model_candidate" in report.verdict
 
 
 def _populated_store() -> EvidenceStore:
