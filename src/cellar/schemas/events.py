@@ -9,6 +9,7 @@ class StreamEventKind(StrEnum):
     TEXT = "text"
     TOOL_USE = "tool_use"
     TOOL_RESULT = "tool_result"
+    SERVER_TOOL_RESULT = "server_tool_result"
     VERIFY_START = "verify_start"
     VERIFY_RESULT = "verify_result"
     DONE = "done"
