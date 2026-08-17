@@ -164,6 +164,11 @@
   .step.error .step__dot { background: var(--cellar-signal); }
   .step__label { color: var(--cellar-ink-muted); }
   .step__sum { margin-left: auto; font-family: var(--cellar-font-mono); font-size: 11px; color: var(--cellar-ink-faint); }
+  .step__link { color: var(--cellar-ink-muted); text-decoration: underline; text-decoration-color: var(--cellar-border-strong); text-underline-offset: 2px; }
+  .step__link:hover { color: var(--cellar-xylem); text-decoration-color: var(--cellar-xylem); }
+  .step__links { display: flex; flex-direction: column; gap: 3px; margin: 2px 0 4px 15px; padding-left: 9px; border-left: 1px solid var(--cellar-border); }
+  .step__sublink { font-size: 11px; color: var(--cellar-ink-faint); text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .step__sublink:hover { color: var(--cellar-xylem); text-decoration: underline; }
   .step.error .step__sum { color: var(--cellar-signal); }
 
   /* --- Recommendation cards --- */
